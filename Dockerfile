@@ -3,8 +3,8 @@ FROM nrel/energyplus:8.2
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download
-ENV OPENSTUDIO_VERSION 1.6.1
-ENV OPENSTUDIO_SHA b9551d1875
+ENV OPENSTUDIO_VERSION 1.6.2
+ENV OPENSTUDIO_SHA a7f0f74c59
 
 # Download from S3
 ENV OPENSTUDIO_DOWNLOAD_BASE_URL https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION
