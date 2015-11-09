@@ -21,9 +21,7 @@ RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git bui
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /usr/local/lib/openstudio-$OPENSTUDIO_VERSION/ruby/2.0/openstudio/sketchup_plugin \
-    && rm -rf /usr/local/share/openstudio-$OPENSTUDIO_VERSION/OSApp \
-    && rm -rf /usr/local/share/openstudio-$OPENSTUDIO_VERSION/pat
+    && rm -rf /usr/local/lib/openstudio-$OPENSTUDIO_VERSION/ruby/2.0/openstudio/sketchup_plugin
 
 # Build and install Ruby 2.0 using rbenv for flexibility
 RUN git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
