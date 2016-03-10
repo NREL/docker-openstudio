@@ -4,7 +4,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download
 ENV OPENSTUDIO_VERSION 1.9.0
-ENV OPENSTUDIO_SHA 043ddbb575
+ENV OPENSTUDIO_SHA 7514aa6d3b
 
 # Download from S3
 ENV OPENSTUDIO_DOWNLOAD_BASE_URL https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION
@@ -15,8 +15,8 @@ ENV OPENSTUDIO_DOWNLOAD_URL $OPENSTUDIO_DOWNLOAD_BASE_URL/$OPENSTUDIO_DOWNLOAD_F
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.0.
 
-RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git build-essential \
-    libssl-dev libreadline-dev zlib1g-dev libxml2-dev \
+RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git \
+    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
@@ -38,7 +38,7 @@ RUN ~/.rbenv/shims/gem install bundler
 # Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB /usr/local/lib/site_ruby/2.0.0
 
-RUN mkdir -p /var/simdata/openstudio
+VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
 
 CMD [ "/bin/bash" ]
