@@ -3,8 +3,8 @@ FROM ubuntu:14.04
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download
-ENV OPENSTUDIO_VERSION 1.13.2
-ENV OPENSTUDIO_SHA 6103d54380
+ENV OPENSTUDIO_VERSION 1.13.3
+ENV OPENSTUDIO_SHA 44ac130fa7
 
 # Download from S3
 ENV OPENSTUDIO_DOWNLOAD_BASE_URL https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION
