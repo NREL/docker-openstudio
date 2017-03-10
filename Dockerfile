@@ -13,7 +13,7 @@ ENV OPENSTUDIO_DOWNLOAD_URL $OPENSTUDIO_DOWNLOAD_BASE_URL/$OPENSTUDIO_DOWNLOAD_F
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
-# Boost, and Ruby 2.0.
+# Boost, and Ruby 2.2.4.
 
 RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git \
     build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev \
@@ -26,8 +26,8 @@ RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git \
 # Build and install Ruby 2.0 using rbenv for flexibility
 RUN git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
 RUN git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-RUN RUBY_CONFIGURE_OPTS=--enable-shared ~/.rbenv/bin/rbenv install 2.0.0-p594
-RUN ~/.rbenv/bin/rbenv global 2.0.0-p594
+RUN RUBY_CONFIGURE_OPTS=--enable-shared ~/.rbenv/bin/rbenv install 2.2.4
+RUN ~/.rbenv/bin/rbenv global 2.2.4
 
 RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
 RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
@@ -36,7 +36,7 @@ RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 RUN ~/.rbenv/shims/gem install bundler
 
 # Add RUBYLIB link for openstudio.rb
-ENV RUBYLIB /usr/local/lib/site_ruby/2.0.0
+ENV RUBYLIB /usr/Ruby
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
