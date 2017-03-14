@@ -15,13 +15,13 @@ ENV OPENSTUDIO_DOWNLOAD_URL $OPENSTUDIO_DOWNLOAD_BASE_URL/$OPENSTUDIO_DOWNLOAD_F
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.2.4.
 
-RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git \
-    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev \
+RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git libglu1 libjpeg8 libfreetype6 libxi6 \
+    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /usr/local/lib/openstudio-$OPENSTUDIO_VERSION/ruby/2.0/openstudio/sketchup_plugin
+    && rm -rf /usr/SketchUpPlugin \
+    && rm -rf /var/lib/apt/lists/*
 
 # Build and install Ruby 2.0 using rbenv for flexibility
 RUN git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
