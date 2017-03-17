@@ -1,41 +1,40 @@
 FROM ubuntu:14.04
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
+#Set up Display Environment
+ARG DISPLAY=local
+ENV DISPLAY ${DISPLAY}
 
-# Run this separate to cache the download
-ENV OPENSTUDIO_VERSION 2.0.4
-ENV OPENSTUDIO_SHA 85b68591e6
-
-# Download from S3
-ENV OPENSTUDIO_DOWNLOAD_BASE_URL https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION
-ENV OPENSTUDIO_DOWNLOAD_FILENAME OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
-ENV OPENSTUDIO_DOWNLOAD_URL $OPENSTUDIO_DOWNLOAD_BASE_URL/$OPENSTUDIO_DOWNLOAD_FILENAME
+# Set Version of software
+ARG OPENSTUDIO_VERSION=2.0.4
+ARG OPENSTUDIO_SHA=85b68591e6
+ARG RUBYVERSION=2.2.4
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
-# Boost, and Ruby 2.2.4.
-
+# Boost, and Ruby.
+ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
 RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git libglu1 libjpeg8 libfreetype6 libxi6 \
-    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 \
-    && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
+    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 libnss3 \
+    && curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /usr/SketchUpPlugin \
     && rm -rf /var/lib/apt/lists/*
 
 # Build and install Ruby 2.0 using rbenv for flexibility
-RUN git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
-RUN git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-RUN RUBY_CONFIGURE_OPTS=--enable-shared ~/.rbenv/bin/rbenv install 2.2.4
-RUN ~/.rbenv/bin/rbenv global 2.2.4
-
-RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
-RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
-
-# Add bundler gem
-RUN ~/.rbenv/shims/gem install bundler
-
-# Add RUBYLIB link for openstudio.rb
+RUN git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv
+ENV RBENV_ROOT=/usr/local/rbenv
+ENV PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
+ENV RUBY_CONFIGURE_OPTS=--enable-shared
+RUN eval "$(rbenv init -)"
+RUN git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build
+RUN cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh"
+RUN rbenv install $RUBYVERSION
+RUN rbenv global $RUBYVERSION
+## install bundler
+RUN gem install bundler
+## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB /usr/Ruby
 
 VOLUME /var/simdata/openstudio
