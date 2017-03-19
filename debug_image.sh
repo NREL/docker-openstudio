@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+x_display=$(ipconfig | grep -m 1 "IPv4" | awk '{print $NF}')
+image=openstudio
+echo "Windows User: $win_user"
+echo "Host/X server IP: $x_display"
+echo "image name: $image"
+
+if [ "$(uname)" == "Darwin" ]; then
+    echo "Running image on $(uname) (untested)"
+	echo "docker build --build-arg DISPLAY=$x_display:0.0 -t $image ."
+	docker build --build-arg DISPLAY=$x_display:0.0 -t $image .
+	echo "docker run -it $image"
+	docker run -it $image
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # Do something under GNU/Linux platform
+    echo "Running image on $(uname) (untested)"
+	echo "docker build --build-arg DISPLAY=$x_display:0.0 -t $image ."
+	docker build --build-arg DISPLAY=$x_display:0.0 -t $image .
+	echo "docker run -it $image"
+	docker run -it $image
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+    # Do something under 64 bits Windows NT platform
+	#Check if X server is running. 
+	if [ "`ps | grep Xming`" == "" ] ; then
+		#If not running try to start it. 
+		if [ -d "/c/Program Files/Xming/" ]; then
+			/c/Program\ Files/Xming/Xming.exe -ac -multiwindow -clipboard  -dpi 108 &
+		elif [ -d "/c/Program Files (x86)/Xming/" ]; then
+			/c/Program\ Files\ \(x86\)/Xming/Xming.exe -ac -multiwindow -clipboard  -dpi 108 &
+		else
+			echo "Could not find Xming installed on your system either /c/Program Files/Xming or /c/Program Files (x86)/Xming  . Please install Xming, ideally the donation version in the default location." 
+			echo "X Display will not work, you can continue while basic shell access."
+			exit
+		fi
+	fi
+	echo "Running image on $(uname)"
+	echo "docker build --build-arg DISPLAY=$x_display:0.0 -t $image ."
+	docker build --build-arg DISPLAY=$x_display:0.0 -t $image .
+	echo "winpty docker run -it $image"
+	winpty docker run -it $image
+fi

@@ -1,14 +1,24 @@
+#Set version of Ubuntu base image.
 FROM ubuntu:14.04
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
-#Set up Display Environment
+# Set up Display Environment. This optionally allows X11 connections
+# if DISPLAY is passed as an argument.
 ARG DISPLAY=local
 ENV DISPLAY ${DISPLAY}
 
-# Set Version of software
+# Set Version of software of OpenStudio, and Ruby.
 ARG OPENSTUDIO_VERSION=2.0.4
 ARG OPENSTUDIO_SHA=85b68591e6
 ARG RUBYVERSION=2.2.4
+ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
+
+# ENV variables to ensure available during /bin/sh shell installation.
+# A more permanant solution will be set in .bashrc below. 
+ENV RBENV_ROOT=/usr/local/rbenv
+ENV PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
+ENV RUBY_CONFIGURE_OPTS=--enable-shared
+ENV RUBYLIB /usr/Ruby
 
 #Required Software and libraries.
 ## System Software
@@ -17,9 +27,11 @@ ARG SYSTEM_SOFTWARE=' \
 	ca-certificates \ 
 	curl \ 
 	gdebi-core \ 
-	git '
+	git \
+	nano '
 	
-## OpenStudio Dependant Libraries for Ubuntu 14.04 that gdeb does not satisfy.					
+## OpenStudio Dependant Libraries for Ubuntu 14.04 that gdebi does not satisfy
+## in installation below.					
 ARG OPENSTUDIOAPP_DEPS=' \
 	libasound2	\
 	libdbus-glib-1-2 \ 
@@ -38,21 +50,14 @@ ARG OPENSTUDIOAPP_DEPS=' \
 	libxtst6 \
 	zlib1g-dev'
 	
-#Install Software and libraries.
+#Install Software and libraries, install ruby, install OpenStudio, 
+# set environment varialble and aliases for ruby and Openstudio. Create 
+# bashrc prompt customization for git for users, and clean apt-get software list. 
 RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \ 
 	$SYSTEM_SOFTWARE \
 	$OPENSTUDIOAPP_DEPS \	
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& apt-get clean	
-	
-# Build and install Ruby 2.0 using rbenv for flexibility
-## Set up ruby env variables and RUBYLIB for OpenStudio
-ENV RBENV_ROOT=/usr/local/rbenv
-ENV PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
-ENV RUBY_CONFIGURE_OPTS=--enable-shared
-ENV RUBYLIB /usr/Ruby
-## Download, compile and install ruby version $RUBYVERSION and bundler gem.
-RUN git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv \
+&& git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv \
 && eval "$(rbenv init -)" \
 && git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
 && cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh" \
@@ -60,34 +65,35 @@ RUN git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv \
 && rbenv global $RUBYVERSION \
 && rbenv rehash \
 && gem install bundler	\
-&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& apt-get clean	
-		
-# Install OpenStudio, then clean up.
-# gdebi handles the installation of OpenStudio's dependencies including Qt5,
-# Boost, and Ruby. For some reason OpenStudioApp will only run if full path is provided, so created an alias.
-ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
-RUN curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
+&& curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
 && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
 && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
 && rm -rf /usr/SketchUpPlugin \
+&& touch /etc/user_config_bashrc && chmod 755 /etc/user_config_bashrc \
+&& echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/user_config_bashrc \
+&& echo 'export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH:$PATH"' >> /etc/user_config_bashrc \ 
+&& echo 'export PATH="/usr/EnergyPlus:$PATH"' >> /etc/user_config_bashrc \
+&& echo 'export RUBYLIB="/usr/Ruby"' >> /etc/user_config_bashrc \
+&& echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> /etc/user_config_bashrc \
+&& echo 'source /usr/lib/git-core/git-sh-prompt' >> /etc/user_config_bashrc \
+&& echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
+&& echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> /etc/user_config_bashrc \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 && apt-get clean
 
+#set root env configuration by add script to /root/.bashrc
+RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
 
+#Add regular user
+RUN useradd -m osdev && echo "osdev:osdev" | chpasswd \
+&& adduser osdev sudo
+USER osdev
 
-RUN echo 'export RBENV_ROOT="/usr/local/rbenv"' >> ~/.bashrc 
-RUN echo 'export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH:$PATH"' >> ~/.bashrc 
-RUN echo 'export PATH="/usr/EnergyPlus:$PATH"' >> ~/.bashrc
-RUN echo 'export RUBYLIB="/usr/Ruby"' >> ~/.bashrc
-RUN echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> ~/.bashrc
-RUN echo 'source /usr/lib/git-core/git-sh-prompt' >> ~/.bashrc
-RUN echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> ~/.bashrc 
-RUN echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> ~/.bashrc
+#set user osdev env configuration by added script to /home/osdev/.bashrc
+RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
 
-
-#  Mount and set cwd
+# Mount and set cwd
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-ENTRYPOINT ["/bin/bash"]
-#CMD [ "/bin/bash" ]
+
+CMD [ "/bin/bash" ]
