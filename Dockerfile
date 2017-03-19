@@ -13,7 +13,7 @@ ARG OPENSTUDIO_SHA=85b68591e6
 ARG RUBYVERSION=2.2.4
 ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
 
-# ENV variables to ensure available during /bin/sh shell installation.
+# ENV variables ensured to be available during /bin/sh shell installation.
 # A more permanant solution will be set in .bashrc below. 
 ENV RBENV_ROOT=/usr/local/rbenv
 ENV PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
@@ -84,13 +84,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \
 #set root env configuration by add script to /root/.bashrc
 RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
 
-#Add regular user
+#Add regular user called osdev
 RUN useradd -m osdev && echo "osdev:osdev" | chpasswd \
 && adduser osdev sudo
 USER osdev
 
 #set user osdev env configuration by added script to /home/osdev/.bashrc
 RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
+
+#Keeping default user as root for now to ensure compatibility.
+USER root
 
 # Mount and set cwd
 VOLUME /var/simdata/openstudio
