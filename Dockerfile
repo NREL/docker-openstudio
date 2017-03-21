@@ -28,7 +28,8 @@ ARG SYSTEM_SOFTWARE=' \
 	curl \ 
 	gdebi-core \ 
 	git \
-	nano '
+	nano \ 
+	wget	'
 	
 ## OpenStudio Dependant Libraries for Ubuntu 14.04 that gdebi does not satisfy
 ## in installation below.					
@@ -56,30 +57,23 @@ ARG OPENSTUDIOAPP_DEPS=' \
 RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \ 
 	$SYSTEM_SOFTWARE \
 	$OPENSTUDIOAPP_DEPS \	
-&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv \
-&& eval "$(rbenv init -)" \
-&& git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
-&& cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh" \
-&& rbenv install $RUBYVERSION \
-&& rbenv global $RUBYVERSION \
-&& rbenv rehash \
-&& gem install bundler	\
-&& curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
-&& gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
-&& rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-&& rm -rf /usr/SketchUpPlugin \
 && touch /etc/user_config_bashrc && chmod 755 /etc/user_config_bashrc \
-&& echo 'export RBENV_ROOT="/usr/local/rbenv"' >> /etc/user_config_bashrc \
-&& echo 'export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH:$PATH"' >> /etc/user_config_bashrc \ 
-&& echo 'export PATH="/usr/EnergyPlus:$PATH"' >> /etc/user_config_bashrc \
-&& echo 'export RUBYLIB="/usr/Ruby"' >> /etc/user_config_bashrc \
 && echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> /etc/user_config_bashrc \
 && echo 'source /usr/lib/git-core/git-sh-prompt' >> /etc/user_config_bashrc \
 && echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
 && echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> /etc/user_config_bashrc \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 && apt-get clean
+
+RUN git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
+&& cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh" 
+RUN wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
+RUN tar -xzvf chruby-0.3.9.tar.gz
+RUN cd chruby-0.3.9/ && make install
+RUN ruby-build $RUBYVERSION /opt/rubies/ruby-$RUBYVERSION
+#Configure Ruby for all users.
+echo 'if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then \n source /usr/local/share/chruby/chruby.sh \n fi' >> /etc/profile.d/chruby.sh
+RUN /bin/bash -c "source /etc/profile.d/chruby.sh && chruby ruby-$RUBYVERSION && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri"
 
 #set root env configuration by add script to /root/.bashrc
 RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
