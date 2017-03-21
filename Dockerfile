@@ -50,6 +50,13 @@ ARG OPENSTUDIOAPP_DEPS=' \
 	libxml2-dev \ 
 	libxtst6 \
 	zlib1g-dev'
+
+#RUN curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
+#&& gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
+#&& rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
+#&& rm -rf /usr/SketchUpPlugin 
+	
+	
 	
 #Install Software and libraries, install ruby, install OpenStudio, 
 # set environment varialble and aliases for ruby and Openstudio. Create 
@@ -72,7 +79,7 @@ RUN tar -xzvf chruby-0.3.9.tar.gz
 RUN cd chruby-0.3.9/ && make install
 RUN ruby-build $RUBYVERSION /opt/rubies/ruby-$RUBYVERSION
 #Configure Ruby for all users.
-echo 'if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then \n source /usr/local/share/chruby/chruby.sh \n fi' >> /etc/profile.d/chruby.sh
+RUN echo 'if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then \n source /usr/local/share/chruby/chruby.sh \n fi' >> /etc/profile.d/chruby.sh
 RUN /bin/bash -c "source /etc/profile.d/chruby.sh && chruby ruby-$RUBYVERSION && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri"
 
 #set root env configuration by add script to /root/.bashrc
