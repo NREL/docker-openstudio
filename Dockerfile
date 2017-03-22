@@ -17,9 +17,6 @@ ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 
 # ENV variables ensured to be available during /bin/sh shell installation.
 # A more permanant solution will be set in .bashrc below. 
-ENV RBENV_ROOT=/usr/local/rbenv
-ENV PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
-ENV RUBY_CONFIGURE_OPTS=--enable-shared
 ENV RUBYLIB /usr/Ruby
 
 #Required Software and libraries.
@@ -66,6 +63,8 @@ RUN echo "*****Installing Software and deps using apt-get" \
 	$OPENSTUDIOAPP_DEPS \
 && echo  "******Customizing bash shell"	\
 && touch /etc/user_config_bashrc && chmod 755 /etc/user_config_bashrc \
+&& echo 'export PATH="/usr/EnergyPlus:$PATH"' >> /etc/user_config_bashrc \
+&& echo 'export RUBYLIB="/usr/Ruby"' >> /etc/user_config_bashrc \
 && echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> /etc/user_config_bashrc \
 && echo 'source /usr/lib/git-core/git-sh-prompt' >> /etc/user_config_bashrc \
 && echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
