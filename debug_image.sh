@@ -2,6 +2,7 @@
 
 x_display=$(ipconfig | grep -m 1 "IPv4" | awk '{print $NF}')
 image=openstudio
+docker rmi $image
 echo "Windows User: $win_user"
 echo "Host/X server IP: $x_display"
 echo "image name: $image"

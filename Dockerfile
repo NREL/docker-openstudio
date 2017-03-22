@@ -11,6 +11,8 @@ ENV DISPLAY ${DISPLAY}
 ARG OPENSTUDIO_VERSION=2.0.4
 ARG OPENSTUDIO_SHA=85b68591e6
 ARG RUBYVERSION=2.2.4
+ARG CHRUBY_VERSION=0.3.9
+ARG RUBYINSTALL_VERSION=0.6.1
 ARG OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
 
 # ENV variables ensured to be available during /bin/sh shell installation.
@@ -58,40 +60,49 @@ ARG OPENSTUDIOAPP_DEPS=' \
 #Install Software and libraries, install ruby, install OpenStudio, 
 # set environment varialble and aliases for ruby and Openstudio. Create 
 # bashrc prompt customization for git for users, and clean apt-get software list. 
-RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \ 
+RUN echo "*****Installing Software and deps using apt-get" \ 
+&& apt-get update && apt-get install -y --no-install-recommends --force-yes \ 
 	$SYSTEM_SOFTWARE \
-	$OPENSTUDIOAPP_DEPS \	
+	$OPENSTUDIOAPP_DEPS \
+&& echo  "******Customizing bash shell"	\
 && touch /etc/user_config_bashrc && chmod 755 /etc/user_config_bashrc \
 && echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> /etc/user_config_bashrc \
 && echo 'source /usr/lib/git-core/git-sh-prompt' >> /etc/user_config_bashrc \
 && echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
 && echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> /etc/user_config_bashrc \
-&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-&& apt-get clean
-
-RUN curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
+&& curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
+&& echo "*****Installing OpenStudio $OPENSTUDIO_VERSION" \
 && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
 && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-&& rm -rf /usr/SketchUpPlugin 
-
-RUN git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
-&& cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh" 
-RUN wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
-RUN tar -xzvf chruby-0.3.9.tar.gz
-RUN cd chruby-0.3.9/ && make install
-RUN ruby-build $RUBYVERSION /opt/rubies/ruby-$RUBYVERSION
-#Configure Ruby for all users.
-RUN echo 'if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then \n source /usr/local/share/chruby/chruby.sh \n fi' >> /etc/profile.d/chruby.sh
-RUN /bin/bash -c "source /etc/profile.d/chruby.sh && chruby ruby-$RUBYVERSION && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri"
-
-#set root env configuration by add script to /root/.bashrc
-RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
-
-#Add regular user called osdev
-RUN useradd -m osdev && echo "osdev:osdev" | chpasswd \
+&& rm -rf /usr/SketchUpPlugin \
+&& echo "*****Installing RubyInstall\ $RUBYINSTALL_VERSION" \
+&& wget -O ruby-install-$RUBYINSTALL_VERSION.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBYINSTALL_VERSION.tar.gz \
+&& tar -xzvf ruby-install-$RUBYINSTALL_VERSION.tar.gz \
+&& cd ruby-install-$RUBYINSTALL_VERSION/ && make install \
+&& echo "*****Installing Ruby $RUBYVERSION" \
+&& ruby-install ruby $RUBYVERSION \
+&& echo "Installing chruby $CHRUBY_VERSION" \
+&& wget -O chruby-$CHRUBY_VERSION.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VERSION.tar.gz \
+&& tar -xzvf chruby-$CHRUBY_VERSION.tar.gz \
+&& cd chruby-$CHRUBY_VERSION/ && make install \
+&& echo 'if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then' >> /etc/profile.d/chruby.sh \
+&& echo 'source /usr/local/share/chruby/chruby.sh' >> /etc/profile.d/chruby.sh \
+&& echo 'source /usr/local/share/chruby/auto.sh' >> /etc/profile.d/chruby.sh \
+&& echo 'chruby ruby-$RUBYVERSION'  >> /etc/profile.d/chruby.sh \
+&& echo 'fi' >> /etc/profile.d/chruby.sh \
+&& echo 'source /etc/profile.d/chruby.sh' >> /etc/user_config_bashrc \
+&& echo "*****Installing bundle and nokogiri gems." \
+&& /bin/bash -c "source /etc/user_config_bashrc && chruby ruby-$RUBYVERSION && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri" \
+&& echo "*****set root env configuration by adding script to /root/.bashrc" \
+&& echo 'source /etc/user_config_bashrc' >> ~/.bashrc \
+&& echo "*****Adding regular user called osdev" \
+&& useradd -m osdev && echo "osdev:osdev" | chpasswd \
+&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+&& apt-get clean \
+&& echo "*****Add regular user" \
 && adduser osdev sudo
-USER osdev
 
+USER osdev
 #set user osdev env configuration by added script to /home/osdev/.bashrc
 RUN echo 'source /etc/user_config_bashrc' >> ~/.bashrc
 
