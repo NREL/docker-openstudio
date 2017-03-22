@@ -51,10 +51,7 @@ ARG OPENSTUDIOAPP_DEPS=' \
 	libxtst6 \
 	zlib1g-dev'
 
-#RUN curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
-#&& gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
-#&& rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-#&& rm -rf /usr/SketchUpPlugin 
+
 	
 	
 	
@@ -71,6 +68,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \
 && echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> /etc/user_config_bashrc \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 && apt-get clean
+
+RUN curl -SLO https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
+&& gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
+&& rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
+&& rm -rf /usr/SketchUpPlugin 
 
 RUN git clone https://github.com/sstephenson/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
 && cd /usr/local/rbenv/plugins/ruby-build && /bin/bash -c "./install.sh" 
