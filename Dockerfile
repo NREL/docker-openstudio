@@ -86,6 +86,7 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && tar -xzvf ruby-install-$RUBYINSTALL_VERSION.tar.gz \
 && cd ruby-install-$RUBYINSTALL_VERSION/ && make install \
 && echo "$YEL*****Installing Ruby $RUBYVERSION *****$NC" \
+&& ruby-install ruby 2.0.0-p594 \
 && ruby-install ruby $RUBYVERSION \
 && echo "$YEL***** Installing chruby $CHRUBY_VERSION *****$NC" \
 && wget -O chruby-$CHRUBY_VERSION.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VERSION.tar.gz \
