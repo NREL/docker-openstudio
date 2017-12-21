@@ -4,7 +4,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download
 ENV OPENSTUDIO_VERSION 2.4.0
-ENV OPENSTUDIO_SHA b2951e5b8d
+ENV OPENSTUDIO_SHA 978a4d7e98
 
 # Download from S3
 ENV OPENSTUDIO_DOWNLOAD_BASE_URL https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION
