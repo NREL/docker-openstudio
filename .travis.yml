@@ -8,4 +8,4 @@ script:
   - docker build -t openstudio:latest .
   - docker run -it openstudio:latest ruby /root/test.rb
 after_success:
-  - deploy_docker.sh
+  - ./deploy_docker.sh
