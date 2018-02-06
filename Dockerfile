@@ -29,14 +29,19 @@ RUN git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/rub
 RUN RUBY_CONFIGURE_OPTS=--enable-shared ~/.rbenv/bin/rbenv install 2.2.4
 RUN ~/.rbenv/bin/rbenv global 2.2.4
 
+# Add rben path
 RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
 RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 
 # Add bundler gem
 RUN ~/.rbenv/shims/gem install bundler
 
-# Add RUBYLIB link for openstudio.rb
+# Add RUBYLIB link for openstudio.rb and Ruby path based on the shim installed
 ENV RUBYLIB /usr/Ruby
+ENV PATH "/root/.rbenv/shims:$PATH"
+
+# Test file
+COPY test.rb /root/test.rb
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
