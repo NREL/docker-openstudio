@@ -1,5 +1,7 @@
 # OpenStudio
 
+[![Build Status](https://travis-ci.org/NREL/docker-openstudio.svg?branch=master)](https://travis-ci.org/NREL/docker-openstudio)
+
 This repo provides a container for OpenStudio as well as several dependencies, including Ruby 2.x, Bundler, build-essentials and various development libraries for gem support.
 
 ## Execution
