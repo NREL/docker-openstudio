@@ -1,0 +1,35 @@
+# This is the base image used to build OpenStudio later
+# From ubuntu, installs all dependencies and Ruby
+# docker build -f Dockerfile-Base -t nrel/openstudio:base .
+FROM ubuntu:14.04
+
+MAINTAINER Julien Marrec julien@effibem.com
+
+# Install gdebi, then download and install OpenStudio, then clean up.
+# gdebi handles the installation of OpenStudio's dependencies including Qt5,
+# Boost, and Ruby 2.2.4.
+RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git libglu1 libjpeg8 libfreetype6 libxi6 \
+    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 \
+    && `# Build and install Ruby 2.0 using rbenv for flexibility` \
+    && git clone https://github.com/sstephenson/rbenv.git ~/.rbenv \
+    && git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build \
+    && RUBY_CONFIGURE_OPTS=--enable-shared ~/.rbenv/bin/rbenv install 2.2.4 \
+    && ~/.rbenv/bin/rbenv global 2.2.4 \
+    && `# Add rbenv path` \
+    && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc \
+    && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+    && `# Add bundler gem` \
+    && ~/.rbenv/shims/gem install bundler
+
+
+# Add RUBYLIB link for openstudio.rb and Ruby path based on the shim installed
+ENV RUBYLIB=/usr/Ruby \
+    PATH="/root/.rbenv/shims:$PATH"
+
+# Test file
+#COPY test.rb /root/test.rb
+
+VOLUME /var/simdata/openstudio
+WORKDIR /var/simdata/openstudio
+
+CMD [ "/bin/bash" ]
