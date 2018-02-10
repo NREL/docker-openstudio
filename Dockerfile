@@ -15,7 +15,8 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.2.4.
 RUN apt-get update && apt-get install -y ca-certificates curl gdebi-core git libglu1 libjpeg8 libfreetype6 libxi6 \
-    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 \
+    build-essential libssl-dev libreadline-dev zlib1g-dev libxml2-dev libdbus-glib-1-2 libfontconfig1 libsm6 libtool \
+    autoconf \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
