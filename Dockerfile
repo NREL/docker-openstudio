@@ -9,8 +9,12 @@ ENV DISPLAY ${DISPLAY}
 
 # Set Version of software of OpenStudio, and Ruby.
 
-ARG OPENSTUDIO_VERSION=2.2.2
-ARG OPENSTUDIO_SHA=ebdeaa44f8
+ARG OPENSTUDIO_VERSION=2.4.1
+ARG OPENSTUDIO_SHA=fcd9a4317a
+
+
+#ARG OPENSTUDIO_VERSION=2.2.2
+#ARG OPENSTUDIO_SHA=ebdeaa44f8
 
 #ARG OPENSTUDIO_VERSION=2.2.0
 #ARG OPENSTUDIO_SHA=0a5e9cec3f
@@ -61,7 +65,9 @@ ARG OPENSTUDIOAPP_DEPS=' \
 	libxi6 \
 	libxml2-dev \ 
 	libxtst6 \
-	zlib1g-dev'
+	zlib1g-dev \ 
+	libtool \ 
+	autoconf'
 
 #Install Software and libraries, install ruby, install OpenStudio, 
 # set environment varialble and aliases for ruby and Openstudio. Create 
