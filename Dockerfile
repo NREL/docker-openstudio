@@ -94,8 +94,9 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && curl -SLO $OPENSTUDIO_BUILDS_URL/$OPENSTUDIO_VERSION/$OPENSTUDIO_DOWNLOAD_FILENAME \
 && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
 && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-&& rm -rf /usr/SketchUpPlugin \
-&& echo "$YEL*****Installing RubyInstall $RUBYINSTALL_VERSION*****$NC" \
+&& rm -rf /usr/SketchUpPlugin
+
+RUN echo "$YEL*****Installing RubyInstall $RUBYINSTALL_VERSION*****$NC" \
 && wget -O ruby-install-$RUBYINSTALL_VERSION.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBYINSTALL_VERSION.tar.gz \
 && tar -xzvf ruby-install-$RUBYINSTALL_VERSION.tar.gz \
 && cd ruby-install-$RUBYINSTALL_VERSION/ && make install \
