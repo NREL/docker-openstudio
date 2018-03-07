@@ -4,8 +4,8 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download (from S3)
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
-ENV OPENSTUDIO_VERSION=2.4.1 \
-    OPENSTUDIO_SHA=fcd9a4317a
+ENV OPENSTUDIO_VERSION=2.4.3 \
+    OPENSTUDIO_SHA=29a61f6637
 
 # Filenames for download from S3
 ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb \
