@@ -1,5 +1,5 @@
 #Set version of Ubuntu base image.
-FROM nrel/openstudio:2.4.3
+FROM nrel/openstudio
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set up Display Environment. This optionally allows X11 connections
