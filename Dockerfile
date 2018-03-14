@@ -72,7 +72,7 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && echo "$YEL*****Installing bundle and nokogiri gems on root. Needs to be run under bash *****$NC" \
 && /bin/bash -c "source /etc/user_config_bashrc && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri" \
 && echo "$YEL*****Setting gem folder to be accessible by users *****$NC" \
-&& chmod -R 777 /usr/local/lib/ruby/gems/
+&& chmod -R 777 /usr/local/lib/ruby/gems
 && echo "$YEL*****Adding regular user called osdev and add to sudo group*****$NC" \
 && useradd -m osdev && echo "osdev:osdev" | chpasswd \
 && adduser osdev sudo \
