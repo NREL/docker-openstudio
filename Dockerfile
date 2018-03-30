@@ -4,8 +4,8 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Run this separate to cache the download (from S3)
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
-ENV OPENSTUDIO_VERSION=2.4.3 \
-    OPENSTUDIO_SHA=29a61f6637 \
+ENV OPENSTUDIO_VERSION=2.5.0 \
+    OPENSTUDIO_SHA=366cbe0e3a \
     RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
