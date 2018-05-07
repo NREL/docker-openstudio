@@ -7,13 +7,10 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 ARG DOWNLOAD_PREFIX=""
 
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
-ENV OPENSTUDIO_VERSION=2.5.0 \
-    OPENSTUDIO_SHA=366cbe0e3a \
+ENV OPENSTUDIO_VERSION=2.5.1 \
+    OPENSTUDIO_SHA=4f268e2854 \
     RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
-
-ENV OPENSTUDIO_VERSION=2.5.1 \
-    OPENSTUDIO_SHA=2037d55667
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
@@ -58,7 +55,7 @@ RUN apt-get update && apt-get install -y autoconf \
     && rm -f /usr/local/bin/install_ruby.sh \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
-    && if dpkg --compare-versions "${OPENSTUDIO_VERSION}" "gt" "2.5.0"; then \
+    && if dpkg --compare-versions "${OPENSTUDIO_VERSION}" "gt" "2.5.1"; then \
             rm -rf /usr/local/openstudio-${OPENSTUDIO_VERSION}/SketchUpPlugin; \
        else \
             rm -rf /usr/SketchUpPlugin; \
@@ -66,9 +63,6 @@ RUN apt-get update && apt-get install -y autoconf \
 
 ## Add RUBYLIB link for openstudio.rb. Support new location and old location.
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
-
-# Test file
-COPY test.rb /root/test.rb
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
