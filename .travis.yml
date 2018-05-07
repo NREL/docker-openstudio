@@ -6,6 +6,6 @@ install:
   - echo "Nothing to install"
 script:
   - docker build -t openstudio:latest .
-  - docker run -it openstudio:latest ruby /root/test.rb
+  - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test.rb
 after_success:
   - ./deploy_docker.sh

@@ -2,16 +2,18 @@ FROM ubuntu:14.04
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
-# Run this separate to cache the download (from S3)
+# If installing a CI build version of OpenStudio, then pass in the CI path into the build command. For example:
+#   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
+ARG DOWNLOAD_PREFIX=""
+
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
-ENV OPENSTUDIO_VERSION=2.5.0 \
-    OPENSTUDIO_SHA=366cbe0e3a \
+ENV OPENSTUDIO_VERSION=2.5.1 \
+    OPENSTUDIO_SHA=4f268e2854 \
     RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
-# Filenames for download from S3
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb \
-    OPENSTUDIO_DOWNLOAD_URL=https://s3.amazonaws.com/openstudio-builds/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
+# Don't combine with above since ENV vars are not initialized until after the above call
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
@@ -39,17 +41,28 @@ RUN apt-get update && apt-get install -y autoconf \
     && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/develop/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
     && chmod +x /usr/local/bin/install_ruby.sh \
     && /usr/local/bin/install_ruby.sh $RUBY_VERSION $RUBY_SHA \
+    && if [ -z "${DOWNLOAD_PREFIX}" ]; then \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+       else \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+       fi \
+    && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
+    # Verify that the download was successful (not access denied XML from s3)
+    && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
+    # Cleanup
+    && rm -f /usr/local/bin/install_ruby.sh \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-    && rm -rf /usr/SketchUpPlugin \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && if dpkg --compare-versions "${OPENSTUDIO_VERSION}" "gt" "2.5.1"; then \
+            rm -rf /usr/local/openstudio-${OPENSTUDIO_VERSION}/SketchUpPlugin; \
+       else \
+            rm -rf /usr/SketchUpPlugin; \
+       fi
 
-## Add RUBYLIB link for openstudio.rb and Ruby path based on the shim installed
-ENV RUBYLIB=/usr/Ruby
-
-# Test file
-COPY test.rb /root/test.rb
+## Add RUBYLIB link for openstudio.rb. Support new location and old location.
+ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
