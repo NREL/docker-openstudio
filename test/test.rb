@@ -13,6 +13,8 @@ end
 
 # After installation, then it should be able to require ffi
 require 'ffi'
+
+# Install semantic to support checking versions easily.
 require 'semantic'
 require 'semantic/core_ext'
 
@@ -27,7 +29,7 @@ puts "OpenStudio Version: #{OpenStudio.openStudioLongVersion}"
 puts OpenStudio::Model.exampleModel.to_s
 
 # Grab the test files that are shipped with OpenStudio and put into a folder and run
-if OpenStudio.openStudioVersion.to_version <= '2.5.1'.to_version
+if OpenStudio.openStudioVersion.to_version > '2.5.1'.to_version
   FileUtils.cp_r "/usr/Examples/compact_osw", 'test/.'
   `/usr/bin/openstudio run -w /var/simdata/openstudio/test/compact_osw/compact.osw`
 else
