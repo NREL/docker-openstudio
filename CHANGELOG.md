@@ -1,5 +1,10 @@
 # OpenStudio Docker Images
 
+## Version 2.5.2
+
+* This has not been updated in quite some time.
+* OpenStudio 2.5.2
+
 ## Version 1.7.2 
 
 * OpenStudio now depends on EnergyPlus 8.3.
