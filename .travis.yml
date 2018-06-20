@@ -4,9 +4,13 @@ services:
   - docker
 install:
   - echo "Nothing to install"
+env:
+  - OPENSTUDIO_VERSION: 2.5.2
+  - OPENSTUDIO_VERSION_SHA: a5af93e7ed
+
 script:
-  - docker build -t openstudio:latest .
+  - docker build -t openstudio:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_VERSION_SHA=$OPENSTUDIO_VERSION_SHA  .
   - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test.rb
-  - docker run -it openstudio:latest /usr/local/openstudio-$(docker run -it openstudio:latest 'ruby -r openstudio -e "puts OpenStudio.openStudioLongVersion"')/Radiance/bin/rtrace -version
+  - docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
 after_success:
   - ./deploy_docker.sh

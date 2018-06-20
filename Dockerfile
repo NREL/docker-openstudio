@@ -6,10 +6,13 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 #   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
 ARG DOWNLOAD_PREFIX=""
 
+# Set the version of OpenStudio below only if you are building the image yourself, if using TravisCI, then set it
+# in the .travis.yml
+ARG OPENSTUDIO_VERSION=2.5.2
+ARG OPENSTUDIO_VERSION_SHA=a5af93e7ed
+
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
-ENV OPENSTUDIO_VERSION=2.5.2 \
-    OPENSTUDIO_SHA=a5af93e7ed \
-    RUBY_VERSION=2.2.4 \
+ENV RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
 # Don't combine with above since ENV vars are not initialized until after the above call
