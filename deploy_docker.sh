@@ -22,7 +22,11 @@ if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     docker login -u $DOCKER_USER -p $DOCKER_PASS
     docker build -f Dockerfile -t nrel/openstudio:$IMAGETAG -t nrel/openstudio:latest .
     docker push nrel/openstudio:$IMAGETAG
-    docker push nrel/openstudio:latest
+
+    if [ "${TRAVIS_BRANCH}" == "master" ]; then
+        # Deploy master as the latest.
+        docker push nrel/openstudio:latest
+    fi
 else
     echo "Not on a deployable branch, this is a pull request or has been explicity skipped"
 fi
