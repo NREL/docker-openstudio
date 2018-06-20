@@ -1,0 +1,4 @@
+ARG OPENSTUDIO_VERSION
+FROM nrel/openstudio:$OPENSTUDIO_VERSION
+
+MAINTAINER Anya Petersen anya.petersen@nrel.gov
