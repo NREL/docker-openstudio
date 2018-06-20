@@ -24,8 +24,7 @@ if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     docker push nrel/openstudio:$IMAGETAG
 
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
-        # Deploy master as the latest.
-        docker build -f Dockerfile -t nrel/openstudio:latest .
+	# Deploy master as the latest.
         docker push nrel/openstudio:latest
     fi
 else

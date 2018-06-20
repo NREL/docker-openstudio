@@ -8,8 +8,8 @@ ARG DOWNLOAD_PREFIX=""
 
 # Set the version of OpenStudio below only if you are building the image yourself, if using TravisCI, then set it
 # in the .travis.yml
-ARG OPENSTUDIO_VERSION=2.5.2
-ARG OPENSTUDIO_SHA=a5af93e7ed
+ARG OPENSTUDIO_VERSION=2.6.0
+ARG OPENSTUDIO_SHA=37b2547d14
 
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
 ENV RUBY_VERSION=2.2.4 \
