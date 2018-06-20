@@ -4,6 +4,8 @@
 
 * This has not been updated in quite some time.
 * OpenStudio 2.5.2
+* Add test for Radiance
+* Release latest docker image only from master branch
 
 ## Version 1.7.2 
 
