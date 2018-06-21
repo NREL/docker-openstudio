@@ -28,7 +28,7 @@ These images are automatically built in TravisCI. To trigger TravisCI for a new 
      - OPENSTUDIO_VERSION: 2.6.0
      - OPENSTUDIO_SHA: e3cb91f98a
     ```
-* Push changes to develop
+* Push changes to feature branch, make and merge a pull-request to develop
 * Wait for CI to finish and verify new develop image is available on [docker hub](https://hub.docker.com/r/nrel/openstudio/tags/).
 * Test locally (if needed)
 
