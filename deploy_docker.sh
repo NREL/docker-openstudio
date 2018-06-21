@@ -19,7 +19,7 @@ fi
 if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     echo "Tagging image as $IMAGETAG"
 
-    docker login -u $DOCKER_USER -p $DOCKER_PASS; (( exit_status = exit_status || $? ))
+    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
     docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
     docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
