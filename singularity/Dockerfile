@@ -1,24 +1,33 @@
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
-        wget \
+ENV SINGULARITY_VERSION=2.5.1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        # singularity dependencies
+        build-essential \
+        python \
+        libarchive-dev \
+        squashfs-tools \
+        # other dependencies
+        curl \
         apt-transport-https \
         ca-certificates \
         software-properties-common \
         gnupg \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends docker-ce \
     && rm -rf /var/lib/apt/lists/*
 
-# Docker Repo
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-# Singularity Repo
-RUN apt-key adv --recv-keys --keyserver hkp://pool.sks-keyservers.net:80 0xA5D32F012649A5A9
-RUN wget -O- http://neuro.debian.net/lists/xenial.us-ca.full | tee /etc/apt/sources.list.d/neurodebian.sources.list
-
-# Install
-RUN apt-get update && apt-get install -y singularity-container docker-ce
-RUN singularity --version
+# Build and install singularity
+WORKDIR /root/singularity-build
+RUN curl -SLO https://github.com/singularityware/singularity/releases/download/$SINGULARITY_VERSION/singularity-$SINGULARITY_VERSION.tar.gz \
+    && tar xvf singularity-$SINGULARITY_VERSION.tar.gz \
+    && cd singularity-$SINGULARITY_VERSION \
+    && ./configure --prefix=/usr/local \
+    && make \
+    && make install \
+    && singularity --version
 
 WORKDIR /root/build
 CMD ['/bin/bash']
