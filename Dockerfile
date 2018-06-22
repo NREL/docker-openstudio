@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:14.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
@@ -22,7 +22,7 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.2.4.
 # OpenStudio 2.4.3 requires libwxgtk3.0-0 -- install manually for now
-RUN apt-get update && apt-get install -y autoconf \
+RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
         build-essential \
         ca-certificates \
         curl \
@@ -71,3 +71,29 @@ VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
 
 CMD [ "/bin/bash" ]
+
+FROM ubuntu:14.04 AS cli
+ARG OPENSTUDIO_VERSION=2.5.2
+# copy entire os install until we have this working with multi stage build.  then pick out only what we want
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION} /usr/local/openstudio-${OPENSTUDIO_VERSION}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+            libfreetype6 \
+            libjpeg8 \
+            libdbus-glib-1-2 \
+            libfontconfig1 \
+            libglu1 \
+            libreadline-dev \
+            libsm6 \
+            libssl-dev \
+            libtool \
+            libwxgtk3.0-0 \
+            libxi6 \
+            libxml2-dev \
+            zlib1g-dev 
+
+# link executable from /usr/local/bin
+RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio
+#RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio-${OPENSTUDIO_VERSION}
+VOLUME /var/simdata/openstudio
+WORKDIR /var/simdata/openstudio
