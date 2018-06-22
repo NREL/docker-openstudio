@@ -74,8 +74,9 @@ CMD [ "/bin/bash" ]
 
 FROM ubuntu:14.04 AS cli
 ARG OPENSTUDIO_VERSION=2.5.2
-# copy entire os install until we have this working with multi stage build.  then pick out only what we want
-COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION} /usr/local/openstudio-${OPENSTUDIO_VERSION}
+# copy executable and energyplus from install
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libfreetype6 \
@@ -90,10 +91,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             libwxgtk3.0-0 \
             libxi6 \
             libxml2-dev \
-            zlib1g-dev 
+            zlib1g-dev \
+     && rm -rf /var/lib/apt/lists/*
 
 # link executable from /usr/local/bin
 RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio
 #RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio-${OPENSTUDIO_VERSION}
+
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
