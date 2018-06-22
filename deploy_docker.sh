@@ -19,14 +19,17 @@ fi
 if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     echo "Tagging image as $IMAGETAG"
 
-    docker login -u $DOCKER_USER -p $DOCKER_PASS
-    docker build -f Dockerfile -t nrel/openstudio:$IMAGETAG -t nrel/openstudio:latest .
-    docker push nrel/openstudio:$IMAGETAG
+    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+    docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
+    docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
+    docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
 
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
 	# Deploy master as the latest.
-        docker push nrel/openstudio:latest
+        docker push nrel/openstudio:latest; (( exit_status = exit_status || $? ))
     fi
+
+    exit $exit_status
 else
     echo "Not on a deployable branch, this is a pull request or has been explicity skipped"
 fi
