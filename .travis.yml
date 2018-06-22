@@ -7,7 +7,7 @@ install:
 env:
   global:
     - OPENSTUDIO_VERSION: 2.6.0
-    - OPENSTUDIO_SHA: ac20db5eff
+    - OPENSTUDIO_SHA: 8c81faf8bc
 script:
   - docker build -t openstudio:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
   - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test.rb
