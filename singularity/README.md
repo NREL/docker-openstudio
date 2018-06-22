@@ -1,25 +1,31 @@
 # Creating Singularity Image
 
-* Build Singularity and Docker Image
+* Build Singularity/Docker Image
 
     ```bash
-    docker build -t singularity .
+    docker build -t singularity -f singularity/Dockerfile .
     ```
     
-* Launch the Container (in privileged mode with docker.sock mounted in the container) from the docker-openstudio root directory
+* Build OpenStudio Container (Locally)
+    
+    ```bash
+    # Set the version of OpenStudio to install
+    export OPENSTUDIO_VERSION=2.6.0
+    export OPENSTUDIO_SHA=ac20db5eff
+  
+    docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
+    ```  
+    
+* Launch the Container (in privileged mode with docker.sock mounted in the container)
 
     ```bash
-    cd .. 
     docker run -it --rm --privileged -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity bash
     ```
     
 * Inside singularity build the docker container
 
     ```bash
-    # Set the version of OpenStudio to install
-    export OPENSTUDIO_VERSION=2.6.0
-    export OPENSTUDIO_SHA=ac20db5eff
-    docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
+    
     if [ ! "$(docker ps -q -f name=for_export)" ]; then docker rm for_export; else echo "Container does not exist"; fi
     # start an instance of the container for export
     docker run --name for_export docker-openstudio /bin/true

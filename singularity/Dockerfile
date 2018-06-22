@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         # singularity dependencies
         build-essential \
         python \
+        python-pip \
         libarchive-dev \
         squashfs-tools \
         # other dependencies
@@ -28,6 +29,9 @@ RUN curl -SLO https://github.com/singularityware/singularity/releases/download/$
     && make \
     && make install \
     && singularity --version
+
+COPY singularity/requirements.txt requirements.txt
+RUN pip install -r requirements.txt
 
 WORKDIR /root/build
 CMD ['/bin/bash']
