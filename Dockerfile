@@ -8,8 +8,10 @@ ARG DOWNLOAD_PREFIX=""
 
 # Set the version of OpenStudio below only if you are building the image yourself, if using TravisCI, then set it
 # in the .travis.yml
-ARG OPENSTUDIO_VERSION=2.5.2
-ARG OPENSTUDIO_SHA=a5af93e7ed
+#ARG OPENSTUDIO_VERSION=2.5.2
+#ARG OPENSTUDIO_SHA=a5af93e7ed
+ARG OPENSTUDIO_VERSION=2.6.0
+ARG OPENSTUDIO_SHA=8c81faf8bc
 
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
 ENV RUBY_VERSION=2.2.4 \
@@ -73,10 +75,10 @@ WORKDIR /var/simdata/openstudio
 CMD [ "/bin/bash" ]
 
 FROM ubuntu:14.04 AS cli
-ARG OPENSTUDIO_VERSION=2.5.2
+ARG OPENSTUDIO_VERSION=2.6.0
 # copy executable and energyplus from install
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
-COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libfreetype6 \
