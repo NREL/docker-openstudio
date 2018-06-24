@@ -10,6 +10,8 @@ ARG DOWNLOAD_PREFIX=""
 # in the .travis.yml
 #ARG OPENSTUDIO_VERSION=2.5.2
 #ARG OPENSTUDIO_SHA=a5af93e7ed
+
+#Also update in cli target below
 ARG OPENSTUDIO_VERSION=2.6.0
 ARG OPENSTUDIO_SHA=8c81faf8bc
 
@@ -75,30 +77,21 @@ WORKDIR /var/simdata/openstudio
 CMD [ "/bin/bash" ]
 
 FROM ubuntu:14.04 AS cli
+
+#also update in base target above
 ARG OPENSTUDIO_VERSION=2.6.0
+
 # copy executable and energyplus from install
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-            libfreetype6 \
-            libjpeg8 \
             libdbus-glib-1-2 \
-            libfontconfig1 \
             libglu1 \
-            libreadline-dev \
-            libsm6 \
-            libssl-dev \
-            libtool \
-            libwxgtk3.0-0 \
-            libxi6 \
-            libxml2-dev \
-            zlib1g-dev \
      && rm -rf /var/lib/apt/lists/*
 
 # link executable from /usr/local/bin
 RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio
-#RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio-${OPENSTUDIO_VERSION}
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
