@@ -33,3 +33,5 @@ if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
 else
     echo "Not on a deployable branch, this is a pull request or has been explicity skipped"
 fi
+
+# Deploy the singularity image

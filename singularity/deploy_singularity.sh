@@ -15,9 +15,10 @@ elif [ "${TRAVIS_BRANCH}" == "master" ]; then
         IMAGETAG=skip
     fi
 elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
-    IMAGETAG=singularity
+    IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
 fi
 
+pip install -r singularity/requirements.txt
 docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
 #export OPENSTUDIO_VERSION=2.6.0
@@ -34,6 +35,9 @@ docker run -it --rm --privileged -v $(pwd):/root/build -v /var/run/docker.sock:/
 #export RUBYLIB=/usr/local/openstudio-2.6.0/Ruby
 #ruby /singtest/test/test.rb
 ls -alR
+
+# upload to s3. The OPENSTUDIO_SHA is taken from the env vars
+python singularity/upload_s3.py --version IMAGETAG
 
 # use python to post the image to s3
 #s3 = boto3.resource('s3')
