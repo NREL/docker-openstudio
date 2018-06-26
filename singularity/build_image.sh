@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [ ! "$(docker ps -q -f name=for_export)" ]; then docker rm for_export; else echo "Container does not exist"; fi
 # start an instance of the container for export
 docker run --name for_export docker-openstudio /bin/true
