@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         python \
         python-pip \
+        python-setuptools \
         libarchive-dev \
         squashfs-tools \
         # other dependencies

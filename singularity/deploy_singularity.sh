@@ -2,12 +2,13 @@
 
 docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
-export OPENSTUDIO_VERSION=2.6.0
-export OPENSTUDIO_SHA=ac20db5eff
+# export OPENSTUDIO_VERSION=2.6.0
+# export OPENSTUDIO_SHA=ac20db5eff
 docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
 
 # Start the registry and push docker-openstudio
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
+sleep 5
 docker tag docker-openstudio localhost:5000/docker-openstudio
 docker push localhost:5000/docker-openstudio
 
@@ -19,6 +20,7 @@ docker run -it --rm --privileged --network=container:registry -v $(pwd):/root/bu
 # Shut down and remove the local registry
 docker container stop registry && docker container rm -v registry
 
+ls -altR
 
 # Test with non-root user
 # docker run -it --rm --privileged -u 1000 -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity bash
@@ -48,5 +50,5 @@ fi
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
 if [ "$IMAGETAG" != "skip" ]; then
     pip install -r singularity/requirements.txt
-    python singularity/upload_s3.py --version IMAGETAG
+    python singularity/upload_s3.py
 fi
