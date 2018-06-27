@@ -1,15 +1,13 @@
 FROM ubuntu:18.04
 
 ENV SINGULARITY_VERSION=2.5.1
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        # singularity dependencies
-        build-essential \
+# singularity, then other dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
         python \
         python-pip \
         python-setuptools \
         libarchive-dev \
         squashfs-tools \
-        # other dependencies
         curl \
         apt-transport-https \
         ca-certificates \
