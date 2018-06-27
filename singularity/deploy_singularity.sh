@@ -2,8 +2,8 @@
 
 docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
-#export OPENSTUDIO_VERSION=2.6.0
-#export OPENSTUDIO_SHA=ac20db5eff
+export OPENSTUDIO_VERSION=2.6.0
+export OPENSTUDIO_SHA=ac20db5eff
 docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
 
 # Start the registry and push docker-openstudio
@@ -16,15 +16,15 @@ docker ps
 # Launch the singularity container
 docker run -it --rm --privileged --network=container:registry -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity /root/build/singularity/build_singularity.sh
 
+# Shut down and remove the local registry
+docker container stop registry && docker container rm -v registry
+
 
 # Test with non-root user
 # docker run -it --rm --privileged -u 1000 -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity bash
-# docker export for_export | singularity image.import docker-openstudio.simg
 # singularity shell -B $(pwd):/singtest docker-openstudio.simg
-# RUBYLIB isn't copied into Singularity container for some reason
-#export RUBYLIB=/usr/local/openstudio-2.6.0/Ruby
 #ruby /singtest/test/test.rb
-ls -alR
+#ls -alR
 
 # Determine the name of the tag
 IMAGETAG=skip
@@ -46,5 +46,7 @@ elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
-pip install -r singularity/requirements.txt
-python singularity/upload_s3.py --version IMAGETAG
+if [ "$IMAGETAG" != "skip" ]; then
+    pip install -r singularity/requirements.txt
+    python singularity/upload_s3.py --version IMAGETAG
+fi
