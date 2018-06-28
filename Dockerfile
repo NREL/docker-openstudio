@@ -62,7 +62,8 @@ RUN apt-get update && apt-get install -y autoconf \
             rm -rf /usr/local/openstudio-${OPENSTUDIO_VERSION}/SketchUpPlugin; \
        else \
             rm -rf /usr/SketchUpPlugin; \
-       fi
+       fi \
+   	&& echo unset LANG >> /etc/bashrc
 
 ## Add RUBYLIB link for openstudio.rb. Support new location and old location.
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
