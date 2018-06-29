@@ -11,7 +11,7 @@
     ```bash
     # Set the version of OpenStudio to install
     export OPENSTUDIO_VERSION=2.6.0
-    export OPENSTUDIO_SHA=ac20db5eff
+    export OPENSTUDIO_SHA=8c81faf8bc
   
     docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
     ```  
@@ -63,3 +63,10 @@ bash
 
 openstudio --version
 ```
+
+* Running singularity in line
+
+```
+singularity exec -B /scratch:/var/simdata/openstudio OpenStudio-2.6.0.ac20db5eff-Singularity.simg openstudio run -w in.osw
+
+
