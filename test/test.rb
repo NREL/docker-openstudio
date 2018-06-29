@@ -32,9 +32,9 @@ puts OpenStudio::Model.exampleModel.to_s
 FileUtils.rm_rf 'test/compact_osw'
 if OpenStudio.openStudioVersion.to_version > '2.5.1'.to_version
   FileUtils.cp_r "/usr/local/openstudio-#{OpenStudio.openStudioVersion}/Examples/compact_osw", 'test/.'
-  `/usr/local/bin/openstudio run -w /var/simdata/openstudio/test/compact_osw/compact.osw`
+  `/usr/local/bin/openstudio run -w test/compact_osw/compact.osw`
 else 
   FileUtils.cp_r "/usr/Examples/compact_osw", 'test/.'
-  `/usr/bin/openstudio run -w /var/simdata/openstudio/test/compact_osw/compact.osw`
+  `/usr/bin/openstudio run -w test/compact_osw/compact.osw`
 end
 raise "Simulation did not run" unless File.exist?('test/compact_osw/run/finished.job')
