@@ -42,3 +42,24 @@
     ```
 
 * Exit out of the container and singularity image will be in the docker-openstudio root directory
+
+# Using Singularity Container
+
+* Download singularity image from S3
+
+```
+curl -SLO https://s3.amazonaws.com/openstudio-builds/2.6.0/OpenStudio-2.6.0.ac20db5eff-Singularity.simg
+```
+
+* Run singularity container
+
+```
+module load singularity-container
+# Mount /scratch for analysis
+singularity shell -B /scratch:/scratch OpenStudio-2.6.0.ac20db5eff-Singularity.simg
+
+# Call bash (without --norc) for now until LANG is fixed
+bash
+
+openstudio --version
+```
