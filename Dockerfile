@@ -71,6 +71,7 @@ RUN apt-get update && apt-get install -y autoconf \
 
 ## Add RUBYLIB link for openstudio.rb. Support new location and old location.
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
+ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
