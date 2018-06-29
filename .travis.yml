@@ -6,7 +6,7 @@ install:
 env:
   global:
     - OPENSTUDIO_VERSION: 2.6.0
-    - OPENSTUDIO_SHA: ac20db5eff
+    - OPENSTUDIO_SHA: 8c81faf8bc
 jobs:
   include:
     - stage: test and build
