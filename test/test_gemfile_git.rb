@@ -11,11 +11,7 @@ puts local_gems.map{ |name, specs|
   ].join(' ') 
 }
 
-require 'tilt'
-puts Tilt::VERSION
-raise "Tilt version does not match" unless Tilt::VERSION == '2.0.8'
-
 require 'openstudio'
 require 'openstudio-standards'
 puts OpenstudioStandards::VERSION
-raise "OpenStudio Standards version does not match" unless OpenstudioStandards::VERSION == '0.2.2'
+raise "OpenStudio Standards version does not match" unless OpenstudioStandards::VERSION == '0.1.14.pre.ambient'

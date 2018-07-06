@@ -17,8 +17,8 @@ jobs:
         - docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
         # Run model via ruby script using system gems
         - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
-        # Run model via openstudio cli with custom gems
-        - docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest test_gemfile.sh
+        # Run model via openstudio cli with various configurations of gems from rubygems, git, and native extensions
+        - docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
       after_success:
         - ./deploy_docker.sh
     - stage: test and build

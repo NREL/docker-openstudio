@@ -1,0 +1,3 @@
+source 'http://rubygems.org'
+
+gem 'openstudio-standards', github: 'nrel/openstudio-standards', branch: 'ambient-loop'

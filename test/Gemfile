@@ -1,5 +1,4 @@
 source 'http://rubygems.org'
 
 gem 'openstudio-standards', '0.2.2'
-# gem 'openstudio-standards', github: 'nrel/openstudio-standards', branch: 'ambient-loop'
 gem 'tilt', '2.0.8'
