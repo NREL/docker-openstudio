@@ -6,7 +6,8 @@ install:
 env:
   global:
     - OPENSTUDIO_VERSION: 2.6.0
-    - OPENSTUDIO_SHA: 8c81faf8bc
+    - OPENSTUDIO_SHA: db58f0df4a
+    - DOWNLOAD_PREFIX: "DansStuff/bundle-branch"
 jobs:
   include:
     - stage: test and build
