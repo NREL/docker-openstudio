@@ -12,9 +12,9 @@ puts local_gems.map{ |name, specs|
 # test a github checkout gem
 require 'tilt'
 puts Tilt::VERSION
-raise "OpenStudio Standards version does not match" unless Tilt::VERSION == '2.0.8'
+raise "Tilt version does not match" unless Tilt::VERSION == '2.0.8'
 
 require 'openstudio'
 require 'openstudio-standards'
 puts OpenstudioStandards::VERSION
-raise "OpenStudio Standards version does not match" unless OpenstudioStandards::VERSION == '0.1.14.pre.ambient'
+raise "OpenStudio Standards version does not match" unless OpenstudioStandards::VERSION == '0.5.0-ambient'
