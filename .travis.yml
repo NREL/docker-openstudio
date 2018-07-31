@@ -5,9 +5,9 @@ install:
   - echo "Nothing to install"
 env:
   global:
-    - OPENSTUDIO_VERSION: 2.6.0
-    - OPENSTUDIO_SHA: db58f0df4a
-    - DOWNLOAD_PREFIX: "DansStuff/bundle-branch"
+    - OPENSTUDIO_VERSION: 2.6.1
+    - OPENSTUDIO_SHA: ca1336a582
+    - DOWNLOAD_PREFIX: ""
 jobs:
   include:
     - stage: test and build
