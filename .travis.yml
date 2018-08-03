@@ -1,4 +1,3 @@
-sudo: required
 language: python
 services:
   - docker
@@ -6,11 +5,23 @@ install:
   - echo "Nothing to install"
 env:
   global:
-    - OPENSTUDIO_VERSION: 2.6.0
-    - OPENSTUDIO_SHA: 8c81faf8bc
-script:
-  - docker build -t openstudio:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
-  - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test.rb
-  - docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
-after_success:
-  - ./deploy_docker.sh
+    - OPENSTUDIO_VERSION: 2.6.1
+    - OPENSTUDIO_SHA: ca1336a582
+    - DOWNLOAD_PREFIX: ""
+jobs:
+  include:
+    - stage: test and build
+      sudo: required
+      script:
+        - docker build -t openstudio:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA --build-arg DOWNLOAD_PREFIX=$DOWNLOAD_PREFIX .
+        - docker run -it openstudio:latest openstudio openstudio_version
+        - docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+        # Run model via ruby script using system gems
+        - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
+        # Run model via openstudio cli with various configurations of gems from rubygems, git, and native extensions
+        - docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
+      after_success:
+        - ./deploy_docker.sh
+    - stage: test and build
+      sudo: required
+      script: ./singularity/deploy_singularity.sh

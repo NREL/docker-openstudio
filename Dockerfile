@@ -23,6 +23,9 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.2.4.
 # OpenStudio 2.4.3 requires libwxgtk3.0-0 -- install manually for now
+
+# install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
+# such as singularity.
 RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
         build-essential \
         ca-certificates \
@@ -63,7 +66,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
             rm -rf /usr/local/openstudio-${OPENSTUDIO_VERSION}/SketchUpPlugin; \
        else \
             rm -rf /usr/SketchUpPlugin; \
-       fi
+       fi \
+    && locale-gen en_US en_US.UTF-8 \
+    && dpkg-reconfigure locales
+
 
 ## Add RUBYLIB link for openstudio.rb. Support new location and old location.
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby

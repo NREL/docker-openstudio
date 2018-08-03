@@ -15,7 +15,7 @@ Below is a table of the various docker tags and their meanings as seen on [this 
 | Tag     | Description                                                                             |
 |---------|-----------------------------------------------------------------------------------------|
 | x.y.z   | Build of official OpenStudio release (recommended use)                                  |
-| latest  | Latest official release of OpenStudio (e.g. 2.5.0)                                      |
+| latest  | Latest official release of OpenStudio (e.g. 2.5.1)                                      |
 | develop | Release of [develop branch](https://github.com/NREL/docker-openstudio/tree/develop)     |
 
 ## Building OpenStudio Container
