@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:14.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
@@ -11,6 +11,7 @@ ARG DOWNLOAD_PREFIX=""
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_SHA
 
+
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
 ENV RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
@@ -22,9 +23,10 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
 # Boost, and Ruby 2.2.4.
 # OpenStudio 2.4.3 requires libwxgtk3.0-0 -- install manually for now
+
 # install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
 # such as singularity.
-RUN apt-get update && apt-get install -y autoconf \
+RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
         build-essential \
         ca-certificates \
         curl \
@@ -77,3 +79,22 @@ VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
 
 CMD [ "/bin/bash" ]
+
+FROM ubuntu:14.04 AS cli
+
+ARG OPENSTUDIO_VERSION
+
+# copy executable and energyplus from install
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
+COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+            libdbus-glib-1-2 \
+            libglu1 \
+     && rm -rf /var/lib/apt/lists/*
+
+# link executable from /usr/local/bin
+RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio
+
+VOLUME /var/simdata/openstudio
+WORKDIR /var/simdata/openstudio
