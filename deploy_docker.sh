@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+
 IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
