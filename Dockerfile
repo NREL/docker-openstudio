@@ -82,8 +82,7 @@ CMD [ "/bin/bash" ]
 
 FROM ubuntu:14.04 AS cli
 
-#also update in base target above
-ARG OPENSTUDIO_VERSION=2.6.0
+ARG OPENSTUDIO_VERSION
 
 # copy executable and energyplus from install
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
