@@ -6,14 +6,11 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 #   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
 ARG DOWNLOAD_PREFIX=""
 
-# Set the version of OpenStudio below only if you are building the image yourself, if using TravisCI, then set it
+# Set the version of OpenStudio when building the container. For example docker build --build-arg OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .
 # in the .travis.yml
-#ARG OPENSTUDIO_VERSION=2.5.2
-#ARG OPENSTUDIO_SHA=a5af93e7ed
+ARG OPENSTUDIO_VERSION
+ARG OPENSTUDIO_SHA
 
-#Also update in cli target below
-ARG OPENSTUDIO_VERSION=2.6.0
-ARG OPENSTUDIO_SHA=8c81faf8bc
 
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
 ENV RUBY_VERSION=2.2.4 \
@@ -70,6 +67,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
 
 ## Add RUBYLIB link for openstudio.rb. Support new location and old location.
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
+ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
