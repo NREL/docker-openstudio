@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -e
 IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
@@ -30,7 +30,7 @@ if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
 	# Deploy master as the latest.
         docker push nrel/openstudio:latest; (( exit_status = exit_status || $? ))
-        docker push nrel/openstudio-cli:latest (( exit_status = exit_status || $? ))
+        docker push nrel/openstudio-cli:latest; (( exit_status = exit_status || $? ))
     fi
 
     exit $exit_status
