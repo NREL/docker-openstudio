@@ -1,3 +1,8 @@
 .idea
 build
 test/compact_osw
+docker-openstudio.simg
+test/.bundle
+test/mygems
+test/Gemfile*.lock
+
