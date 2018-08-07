@@ -80,15 +80,15 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/e
 
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
-    mkdir /var/gemdata && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/gemdata && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/gemdata
-WORKDIR /var/gemdata
-RUN bundle _${OS_BUNDLER_VERSION}_ install --path=custom_gems --jobs=4 --retry=3
+    mkdir /var/oscli && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli
+WORKDIR /var/oscli
+RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-RUN openstudio --verbose --bundle /var/gemdata/Gemfile --bundle_path /var/gemdata/custom_gems openstudio_version
+RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
 
 CMD [ "/bin/bash" ]
