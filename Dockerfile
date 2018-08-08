@@ -64,7 +64,7 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && echo  "$YEL******Adding OpenStudio libs to RUBYLIB*****$NC"	\
 && echo 'export RUBYLIB="/usr/Ruby"' >> /etc/user_config_bashrc \
 && echo  "$YEL******Aliasing OpenStudioApp so it can run anywhere.*****$NC"	\
-&& echo 'alias OpenStudioApp=/usr/bin/OpenStudioApp' >> /etc/user_config_bashrc \
+&& echo 'alias OpenStudioApp=/usr/local/bin/OpenStudioApp' >> /etc/user_config_bashrc \
 && echo  "$YEL******Adding Git colors to bash prompt*****$NC"	\
 && echo 'source /usr/lib/git-core/git-sh-prompt' >> /etc/user_config_bashrc \
 && echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
