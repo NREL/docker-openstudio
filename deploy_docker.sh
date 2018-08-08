@@ -22,11 +22,15 @@ if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
     docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
+    docker tag openstudio-cli:latest nrel/openstudio-cli:$IMAGETAG; (( exit_status = exit_status || $? ))
+    docker tag openstudio-cli:latest nrel/openstudio-cli:latest; (( exit_status = exit_status || $? ))
     docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
+    docker push nrel/openstudio-cli:$IMAGETAG; (( exit_status = exit_status || $? ))
 
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
 	# Deploy master as the latest.
         docker push nrel/openstudio:latest; (( exit_status = exit_status || $? ))
+        docker push nrel/openstudio-cli:latest; (( exit_status = exit_status || $? ))
     fi
 
     exit $exit_status
