@@ -63,8 +63,8 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && echo  "$YEL******Adding E+ to path*****$NC"	\
 && echo 'export PATH="/usr/EnergyPlus:$PATH"' >> /etc/user_config_bashrc \
 && echo  "$YEL******Adding OpenStudio libs to RUBYLIB*****$NC"	\
-&& echo 'export RUBYLIB="/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby" >> /etc/user_config_bashrc \
-&& echo 'export ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus" \
+&& echo "export RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby" >> /etc/user_config_bashrc \
+&& echo "export ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus" >> /etc/user_config_bashrc \
 && echo  "$YEL******Aliasing OpenStudioApp so it can run anywhere.*****$NC"	\
 && echo 'alias OpenStudioApp=/usr/local/bin/OpenStudioApp' >> /etc/user_config_bashrc \
 && echo  "$YEL******Adding Git colors to bash prompt*****$NC"	\
