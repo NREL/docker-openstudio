@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-
+VERSION=2.6.0
 x_display=$(ipconfig | grep -m 1 "IPv4" | awk '{print $NF}')
 image=openstudio
+
 docker rmi $image
 echo "Windows User: $win_user"
 echo "Host/X server IP: $x_display"
@@ -41,7 +42,7 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
 		echo "Using instance of Xming already running."
 	fi
 	echo "docker build --build-arg DISPLAY=$x_display:0.0 -t $image ."
-	docker build --build-arg DISPLAY=$x_display:0.0 -t $image .
+	docker build --no-cache --build-arg DOCKER_OPENSTUDIO_VERSION=$VERSION --build-arg OPENSTUDIO_VERSION=$VERSION --build-arg DISPLAY=$x_display:0.0 -t $image .
 	echo "winpty docker run -it $image"
 	winpty docker run -it $image
 fi

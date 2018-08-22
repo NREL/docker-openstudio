@@ -1,5 +1,10 @@
-#Set version of Ubuntu base image.
-FROM nrel/openstudio:latest
+#Set version of Ubuntu base image
+
+ARG DOCKER_OPENSTUDIO_VERSION
+FROM nrel/openstudio:$DOCKER_OPENSTUDIO_VERSION
+
+ARG OPENSTUDIO_VERSION
+ENV OPENSTUDIO_VERSION ${OPENSTUDIO_VERSION}
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set up Display Environment. This optionally allows X11 connections
@@ -25,7 +30,7 @@ ARG SYSTEM_SOFTWARE=' \
 	gdebi-core \ 
 	git \
 	nano \ 
-	wget'
+	wget '
 	
 ## OpenStudio Dependant Libraries for Ubuntu 14.04 that gdebi does not satisfy
 ## in installation below.					
@@ -63,7 +68,7 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && echo  "$YEL******Adding E+ to path*****$NC"	\
 && echo 'export PATH="/usr/EnergyPlus:$PATH"' >> /etc/user_config_bashrc \
 && echo  "$YEL******Adding OpenStudio libs to RUBYLIB*****$NC"	\
-&& echo "export RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby" >> /etc/user_config_bashrc \
+&& echo "export RUBYLIB=/usr/local/openstudio-$OPENSTUDIO_VERSION/Ruby:/usr/Ruby" >> /etc/user_config_bashrc \
 && echo "export ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus" >> /etc/user_config_bashrc \
 && echo  "$YEL******Aliasing OpenStudioApp so it can run anywhere.*****$NC"	\
 && echo 'alias OpenStudioApp=/usr/local/bin/OpenStudioApp' >> /etc/user_config_bashrc \

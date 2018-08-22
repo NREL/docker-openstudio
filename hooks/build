@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+echo "------ HOOK START - BUILD -------"
+printenv
+
+docker build --build-arg DOCKER_OPENSTUDIO_VERSION=$DOCKER_TAG --build-arg OPENSTUDIO_VERSION=$DOCKER_TAG -t $IMAGE_NAME .
+
+echo "------ HOOK END - BUILD -------"
