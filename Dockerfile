@@ -6,10 +6,15 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 #   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
 ARG DOWNLOAD_PREFIX=""
 
-# Set the version of OpenStudio when building the container. For example docker build --build-arg OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .
-# in the .travis.yml
+# Set the version of OpenStudio when building the container. For example `docker build --build-arg
+# OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
+# inherit the variables into child containers
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_SHA
+ARG OS_BUNDLER_VERSION=1.14.4
+ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
+ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
+ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
 
 
 # Modify the OPENSTUDIO_VERSION and OPENSTUDIO_SHA for new versions
@@ -75,8 +80,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby:/usr/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
+# The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
+RUN gem install bundler -v $OS_BUNDLER_VERSION && \
+    mkdir /var/oscli && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli
+WORKDIR /var/oscli
+RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
+
+# Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
+RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
 
 CMD [ "/bin/bash" ]
 
