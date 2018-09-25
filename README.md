@@ -43,9 +43,15 @@ These images are automatically built in TravisCI. To trigger TravisCI for a new 
 ### Build Locally
   
 Begin by installing the [docker tool-kit](https://docs.docker.com/engine/installation/) version 17.03.1 or later, as 
-described in the linked documentation. Once the tool-kit is installed and activated, run the command `docker build .`. 
-This will initiate the build process for the docker container. Any updates to this process should be implemented 
-through the [Dockerfile](./Dockerfile) in the root of this repo. 
+described in the linked documentation. Once the tool-kit is installed and activated, run the command below to build the base image with OpenStudio 2.6.1.
+
+```
+docker build --target base -t openstudio-local --build-arg OPENSTUDIO_VERSION=2.6.1 --build-arg OPENSTUDIO_SHA=ab0dddde0b .
+```
+
+The version of OpenStudio and the SHAs are listed [here](https://github.com/NREL/OpenStudio/wiki/OpenStudio-Version-Compatibility-Matrix). 
+
+If the `--target` is not passed, then the docker build will contain only the CLI. 
 
 ## Executing OpenStudio Container
 
