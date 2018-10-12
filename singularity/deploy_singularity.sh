@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
+# Building a container with singularity installed to build the OpenStudio singularity image
 docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
 # export OPENSTUDIO_VERSION=2.6.0
 # export OPENSTUDIO_SHA=ac20db5eff
-docker build -t docker-openstudio --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
+docker build -t docker-openstudio --target base --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
 
 # Start the registry and push docker-openstudio
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
@@ -22,7 +23,7 @@ docker container stop registry && docker container rm -v registry
 
 ls -altR
 
-# Test with non-root user
+# Test with non-root user. The -u 1000 is not needed when testing locally on OSX.
 # docker run -it --rm --privileged -u 1000 -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity bash
 # singularity shell -B $(pwd):/singtest docker-openstudio.simg
 #ruby /singtest/test/test.rb
@@ -52,3 +53,4 @@ if [ "$IMAGETAG" != "skip" ]; then
     pip install -r singularity/requirements.txt
     python singularity/upload_s3.py
 fi
+
