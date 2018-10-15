@@ -31,7 +31,7 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-
 
 # install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
 # such as singularity.
-RUN apt-get update && apt-get install -y --no-install-recommends autoconf \
+RUN apt-get update && apt-get install -y autoconf \
         build-essential \
         ca-certificates \
         curl \
