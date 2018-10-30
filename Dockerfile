@@ -83,10 +83,18 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/e
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli
 WORKDIR /var/oscli
+RUN OLDSTD="gem 'openstudio-standards'" && \
+    NEWSTD="gem 'openstudio-standards', github: 'NREL/openstudio-standards', branch: 'la100'" && \
+    sed -i -e "s|$OLDSTD.*|$NEWSTD|g" /var/oscli/Gemfile && \
+    OLDWFG="gem 'openstudio-workflow'" && \
+    NEWWFG="gem 'openstudio-workflow', github: 'NREL/openstudio-workflow-gem', branch: 'develop'" && \
+    sed -i -e "s|$OLDWFG.*|$NEWWFG|g" /var/oscli/Gemfile
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
+RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-8f027f0c3fbe/.git \
+    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-8f027f0c3fbe/test \
+    /var/oscli/gems/ruby/2.2.0/cache/bundler
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
@@ -102,6 +110,7 @@ ARG OPENSTUDIO_VERSION
 # copy executable and energyplus from install
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/
 COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus
+COPY --from=base /var/oscli/ /var/oscli/
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libdbus-glib-1-2 \
