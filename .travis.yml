@@ -5,8 +5,8 @@ install:
   - echo "Nothing to install"
 env:
   global:
-    - OPENSTUDIO_VERSION: 2.7.0
-    - OPENSTUDIO_SHA: 544f363db5
+    - OPENSTUDIO_VERSION: 2.7.1
+    - OPENSTUDIO_SHA: 2b00619665
     - DOWNLOAD_PREFIX: ""
 jobs:
   include:
