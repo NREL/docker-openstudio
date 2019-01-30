@@ -92,8 +92,8 @@ RUN OLDSTD="gem 'openstudio-standards'" && \
     NEWWFG="gem 'openstudio-workflow', github: 'NREL/openstudio-workflow-gem', branch: 'develop'" && \
     sed -i -e "s|$OLDWFG.*|$NEWWFG|g" /var/oscli/Gemfile
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
-RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-8f027f0c3fbe/.git \
-    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-8f027f0c3fbe/test \
+RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-0ab13261c384/.git \
+    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-0ab13261c384/test \
     /var/oscli/gems/ruby/2.2.0/cache/bundler
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
