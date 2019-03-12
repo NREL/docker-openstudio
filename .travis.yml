@@ -6,7 +6,7 @@ install:
 env:
   global:
     - OPENSTUDIO_VERSION: 2.7.2
-    - OPENSTUDIO_SHA: b71af9b995
+    - OPENSTUDIO_SHA: 130a28f15a
     - DOWNLOAD_PREFIX: ""
 jobs:
   include:
