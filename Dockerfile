@@ -46,7 +46,6 @@ RUN apt-get update && apt-get install -y autoconf \
         libsm6 \
         libssl-dev \
         libtool \
-#        libwxgtk3.0-0 \
         libwxgtk3.0-0v5 \
         libxi6 \
         libxml2-dev \
@@ -86,7 +85,8 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/e
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/openstudio-gems.gemspec /var/oscli
 WORKDIR /var/oscli
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 
@@ -108,8 +108,8 @@ COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/loc
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libdbus-glib-1-2 \
             libglu1 \
-			libssl-dev \
-			libpng-dev \
+		  libssl-dev \
+		  libpng-dev \
      && rm -rf /var/lib/apt/lists/*
 
 # link executable from /usr/local/bin
