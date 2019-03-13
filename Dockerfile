@@ -1,4 +1,4 @@
-FROM ubuntu:14.04 AS base
+FROM ubuntu:16.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
@@ -11,7 +11,7 @@ ARG DOWNLOAD_PREFIX=""
 # inherit the variables into child containers
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=1.14.4
+ARG OS_BUNDLER_VERSION=1.17.1
 ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
 ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
 ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
@@ -46,9 +46,10 @@ RUN apt-get update && apt-get install -y autoconf \
         libsm6 \
         libssl-dev \
         libtool \
-        libwxgtk3.0-0 \
+        libwxgtk3.0-0v5 \
         libxi6 \
         libxml2-dev \
+		locales \
         zlib1g-dev \
     && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/develop/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
     && chmod +x /usr/local/bin/install_ruby.sh \
@@ -83,8 +84,9 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/e
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli/ && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli/ && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 
@@ -95,7 +97,7 @@ RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/ge
 
 CMD [ "/bin/bash" ]
 
-FROM ubuntu:14.04 AS cli
+FROM ubuntu:16.04 AS cli
 
 ARG OPENSTUDIO_VERSION
 
@@ -106,6 +108,8 @@ COPY --from=base /usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus /usr/loc
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libdbus-glib-1-2 \
             libglu1 \
+		  libssl-dev \
+		  libpng-dev \
      && rm -rf /var/lib/apt/lists/*
 
 # link executable from /usr/local/bin
