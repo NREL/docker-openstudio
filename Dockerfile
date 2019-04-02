@@ -1,9 +1,9 @@
 #Set version of Ubuntu base image
 
-ARG DOCKER_OPENSTUDIO_VERSION=2.7.0
+ARG DOCKER_OPENSTUDIO_VERSION=2.7.1
 FROM nrel/openstudio:$DOCKER_OPENSTUDIO_VERSION
 
-ARG OPENSTUDIO_VERSION=2.7.0
+ARG OPENSTUDIO_VERSION=2.7.1
 ENV OPENSTUDIO_VERSION ${OPENSTUDIO_VERSION}
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
@@ -77,7 +77,7 @@ RUN echo "$YEL*****Installing Software and deps using apt-get*****$NC" \
 && echo 'red=$(tput setaf 1) && green=$(tput setaf 2) && yellow=$(tput setaf 3) &&  blue=$(tput setaf 4) && magenta=$(tput setaf 5) && reset=$(tput sgr0) && bold=$(tput bold)' >> /etc/user_config_bashrc \ 
 && echo PS1=\''\[$magenta\]\u\[$reset\]@\[$green\]\h\[$reset\]:\[$blue\]\w\[$reset\]\[$yellow\][$(__git_ps1 "%s")]\[$reset\]\$'\' >> /etc/user_config_bashrc \
 && echo "$YEL*****Installing bundle and nokogiri gems on root. Needs to be run under bash *****$NC" \
-&& /bin/bash -c "source /etc/user_config_bashrc && gem install --no-ri --no-rdoc bundler && gem install --no-ri --no-rdoc nokogiri" \
+&& /bin/bash -c "source /etc/user_config_bashrc && gem install --no-ri --no-rdoc bundler -v 1.16.4 && gem install --no-ri --no-rdoc nokogiri -v 1.8.4" \
 && echo "$YEL*****Setting gem folder to be accessible by users *****$NC" \
 && chmod -R 777 /usr/local/lib/ruby/gems \
 && echo "$YEL*****Adding regular user called osdev and add to sudo group*****$NC" \
