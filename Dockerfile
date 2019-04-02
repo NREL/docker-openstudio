@@ -55,9 +55,9 @@ RUN apt-get update && apt-get install -y autoconf \
     && chmod +x /usr/local/bin/install_ruby.sh \
     && /usr/local/bin/install_ruby.sh $RUBY_VERSION $RUBY_SHA \
     && if [ -z "${DOWNLOAD_PREFIX}" ]; then \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
        else \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
        fi \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \

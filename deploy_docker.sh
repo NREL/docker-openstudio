@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-IMAGETAG=${OPENSTUDIO_VERSION}
+IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 echo "image would be tagged as $IMAGETAG if this were master branch"
 IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
 elif [ "${TRAVIS_BRANCH}" == "master" ]; then
-    IMAGETAG=${OPENSTUDIO_VERSION}
+    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 fi
 
 if [ "${IMAGETAG}" != "skip" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
