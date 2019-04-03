@@ -24,7 +24,7 @@ ENV RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
 # Don't combine with above since ENV vars are not initialized until after the above call
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
