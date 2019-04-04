@@ -51,8 +51,7 @@ RUN apt-get update && apt-get install -y autoconf \
         libwxgtk3.0-0v5 \
         libxi6 \
         libxml2-dev \
-	   locales \
-        sudo \
+		locales \
         zlib1g-dev \
     && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/develop/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
     && chmod +x /usr/local/bin/install_ruby.sh \
