@@ -5,7 +5,7 @@ docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
 # export OPENSTUDIO_VERSION=2.6.0
 # export OPENSTUDIO_SHA=ac20db5eff
-docker build -t docker-openstudio --target base --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
+docker build -t docker-openstudio --target base --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT .
 
 # Start the registry and push docker-openstudio
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
@@ -34,16 +34,7 @@ IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
 elif [ "${TRAVIS_BRANCH}" == "master" ]; then
-    # Retrieve the version number from package.json
-    IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
-    OUT=$?
-    if [ $OUT -eq 0 ]; then
-        IMAGETAG=$( echo $IMAGETAG | tr -d '\r' )
-        echo "Found OpenStudio Version: $IMAGETAG"
-    else
-        echo "ERROR Trying to find OpenStudio Version"
-        IMAGETAG=skip
-    fi
+    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
     IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
 fi
