@@ -34,16 +34,7 @@ IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
 elif [ "${TRAVIS_BRANCH}" == "master" ]; then
-    # Retrieve the version number from package.json
-    IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
-    OUT=$?
-    if [ $OUT -eq 0 ]; then
-        IMAGETAG=$( echo $IMAGETAG | tr -d '\r' )
-        echo "Found OpenStudio Version: $IMAGETAG"
-    else
-        echo "ERROR Trying to find OpenStudio Version"
-        IMAGETAG=skip
-    fi
+    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
     IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
 fi

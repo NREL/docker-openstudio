@@ -10,9 +10,11 @@ ARG DOWNLOAD_PREFIX=""
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
 ARG OPENSTUDIO_VERSION
+ARG OPENSTUDIO_VERSION_EXT
 ARG OPENSTUDIO_SHA
 ARG OS_BUNDLER_VERSION=1.17.1
 ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
+ENV OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT
 ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
 ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
 
@@ -22,7 +24,7 @@ ENV RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
 # Don't combine with above since ENV vars are not initialized until after the above call
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
@@ -56,9 +58,9 @@ RUN apt-get update && apt-get install -y autoconf \
     && chmod +x /usr/local/bin/install_ruby.sh \
     && /usr/local/bin/install_ruby.sh $RUBY_VERSION $RUBY_SHA \
     && if [ -z "${DOWNLOAD_PREFIX}" ]; then \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
        else \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
        fi \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
