@@ -5,7 +5,7 @@ docker build -f singularity/Dockerfile -t singularity .
 # OPENSTUDIO_VERSION and OPENSTUDIO_SHA are set by travis
 # export OPENSTUDIO_VERSION=2.6.0
 # export OPENSTUDIO_SHA=ac20db5eff
-docker build -t docker-openstudio --target base --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA .
+docker build -t docker-openstudio --target base --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT .
 
 # Start the registry and push docker-openstudio
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
