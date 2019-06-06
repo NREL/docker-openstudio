@@ -6,8 +6,8 @@ install:
 env:
   global:
     - OPENSTUDIO_VERSION: 2.8.1
-    - OPENSTUDIO_VERSION_EXT: -rc1
-    - OPENSTUDIO_SHA: 809785b98f
+    - OPENSTUDIO_VERSION_EXT: -rc2
+    - OPENSTUDIO_SHA: 88b69707f1
     - DOWNLOAD_PREFIX: ""
 jobs:
   include:
