@@ -1,5 +1,13 @@
 # OpenStudio Docker Images
 
+## Version 2.8.1
+Enable pre-releases.  Disable openstudio-cli images.
+
+## Version 2.8.0
+Update to Ubuntu 16.04 Xenial.
+
+## Version 2.7.1
+
 ## Version 2.7.0
 * Additional support for Singularity images.
 
