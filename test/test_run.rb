@@ -4,15 +4,16 @@ require 'fileutils'
 
 # Make sure we can load FFI as it is a very nice dependency
 begin
-  gem 'ffi'
+  # gem 'ffi'
+  require 'semantic'
 rescue LoadError
-  system('gem install ffi')
+  # system('gem install ffi')
   system('gem install semantic')
   Gem.clear_paths
 end
 
 # After installation, then it should be able to require ffi
-require 'ffi'
+# require 'ffi'
 
 # Install semantic to support checking versions easily.
 require 'semantic'
