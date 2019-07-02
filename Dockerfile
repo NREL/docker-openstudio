@@ -21,7 +21,7 @@ ENV RUBY_VERSION=2.5.1
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio3-prerelease-rc1.d3ec7ff9b5-2.8.1-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-2.8.1.8436886ba1-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -29,30 +29,12 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio3-prerelease-rc1.d3ec7ff9b5-2.8.1-Lin
 # install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
 # such as singularity.
 RUN apt-get update && apt-get install -y \
-     #    autoconf \
-     #    build-essential \
-     #    ca-certificates \
         curl \
         gdebi-core \
-        # will we care that we can't lock to 2.5.1 specifically?
         ruby2.5 \ 
         git \
-     #    libfreetype6 \
-     #    libjpeg8 \
-     #    libdbus-glib-1-2 \
-     #    libfontconfig1 \
-     #    libglu1 \
-     #    libreadline-dev \
-     #    libsm6 \
-     #    libssl-dev \
-     #    libtool \
-     #    libwxgtk3.0-0v5 \
-     #    libxi6 \
-     #    libxml2-dev \
 	   locales \
-     #    sudo \
-     #    zlib1g-dev \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop3/$OPENSTUDIO_DOWNLOAD_FILENAME \
+    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/incremental/develop3/3586/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
@@ -82,6 +64,6 @@ RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-# RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
+RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
 
 CMD [ "/bin/bash" ]
