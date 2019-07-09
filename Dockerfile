@@ -30,10 +30,16 @@ ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-2.8.1.8436886ba1-Linux.deb
 # such as singularity.
 RUN apt-get update && apt-get install -y \
         curl \
+        vim \
         gdebi-core \
-        ruby2.5 \ 
+        ruby2.5 \
+        ruby-dev \ 
+        libffi-dev \ 
+        build-essential \
+        zlib1g-dev \
+        vim \ 
         git \
-	   locales \
+	    locales \
     && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/incremental/develop3/3586/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
