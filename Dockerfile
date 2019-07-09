@@ -21,7 +21,7 @@ ENV RUBY_VERSION=2.5.1
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-2.8.1.8436886ba1-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-2.8.1.1e49ce691b-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
         vim \ 
         git \
 	    locales \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/incremental/develop3/3586/$OPENSTUDIO_DOWNLOAD_FILENAME \
+    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/incremental/develop3/3588/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
