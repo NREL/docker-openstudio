@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y \
         vim \ 
         git \
 	    locales \
+        sudo \
     && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/incremental/develop3/3588/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
