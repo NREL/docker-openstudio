@@ -5,10 +5,11 @@ install:
   - echo "Nothing to install"
 env:
   global:
-    - OPENSTUDIO_VERSION: 2.8.1
-    - OPENSTUDIO_VERSION_EXT:
-    - OPENSTUDIO_SHA: 6914d4f590
-    - DOWNLOAD_PREFIX: ""
+  # setting explicitly in Dockerfile for the develop3 branch
+    # - OPENSTUDIO_VERSION: 2.8.1
+    # - OPENSTUDIO_VERSION_EXT: 3-prerelease-rc1
+    # - OPENSTUDIO_SHA: d3ec7ff9b5
+    # - DOWNLOAD_PREFIX: develop3/
 jobs:
   include:
     - stage: test and build
