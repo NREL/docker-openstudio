@@ -9,7 +9,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
-ARG OPENSTUDIO_VERSION=2.8.1
+ARG OPENSTUDIO_VERSION
 # ARG OPENSTUDIO_VERSION_EXT
 # ARG OPENSTUDIO_SHA
 ARG OS_BUNDLER_VERSION=1.17.1
