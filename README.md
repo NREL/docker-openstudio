@@ -5,7 +5,7 @@
 This repo provides a container for OpenStudio as well as several dependencies, including Ruby 2.x, Bundler, 
 build-essentials and various development libraries for gem support.
 
-At the moment, there is are two target containers for this project (Docker and [Singularity](https://singularity.lbl.gov). We are working on a slim version container.
+At the moment, there are two target containers for this project, Docker and [Singularity](https://singularity.lbl.gov). We are working on a slim version container.
 
 ## Docker Tags
 
