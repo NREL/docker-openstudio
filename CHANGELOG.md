@@ -1,5 +1,8 @@
 # OpenStudio Docker Images
 
+# Version 2.9.0
+ Enable pre-releases.  Disable openstudio-cli images.
+
 ## Version 2.8.1
 Enable pre-releases.  Disable openstudio-cli images.
 
