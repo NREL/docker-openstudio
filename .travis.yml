@@ -7,7 +7,7 @@ env:
   global:
     - OPENSTUDIO_VERSION: 2.9.0
     - OPENSTUDIO_VERSION_EXT: -rc3
-    - OPENSTUDIO_SHA: 7bafabdf9b
+    - OPENSTUDIO_SHA: d19c1b35a5
     - DOWNLOAD_PREFIX: ""
 jobs:
   include:
