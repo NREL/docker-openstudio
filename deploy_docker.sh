@@ -5,7 +5,7 @@ IMAGETAG=skip
 if [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
 elif [ "${TRAVIS_BRANCH}" == "develop3" ]; then
-    IMAGETAG=3.0.0-pre1-rc1
+    IMAGETAG=3.0.0-pre1
 elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 fi
