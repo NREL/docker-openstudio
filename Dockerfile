@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y \
     && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop3/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
-    && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \-
+    && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
