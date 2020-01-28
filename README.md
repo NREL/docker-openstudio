@@ -14,19 +14,21 @@ Below is a table of the various docker tags and their meanings as seen on [this 
 | Tag     | Description                                                                             |
 |---------|-----------------------------------------------------------------------------------------|
 | x.y.z   | Build of official OpenStudio release (recommended use)                                  |
-| latest  | Latest official release of OpenStudio (e.g. 2.5.1)                                      |
+| latest  | Latest official release of OpenStudio (e.g., 2.9.1)                                     |
 | develop | Release of [develop branch](https://github.com/NREL/docker-openstudio/tree/develop)     |
 
-## Building OpenStudio Container
+## Building OpenStudio Container and Releasing
 
 These images are automatically built in TravisCI. To trigger TravisCI for a new build do the following:
 
-* On develop branch update the [.travis.yml](.travis.yml) with the new version of OpenStudio and SHA
+* On feature branch update the [.travis.yml](.travis.yml) with the new version of OpenStudio and SHA
 
     ```yaml
-     - OPENSTUDIO_VERSION: 2.6.0
-     - OPENSTUDIO_SHA: e3cb91f98a
+     - OPENSTUDIO_VERSION: 2.9.1
+     - OPENSTUDIO_SHA: 3472e8b799
     ```
+
+* Update the CHANGELOG.md file with changes.
 * Push changes to feature branch, make and merge a pull-request to develop
 * Wait for CI to finish and verify new develop image is available on [docker hub](https://hub.docker.com/r/nrel/openstudio/tags/).
 * Test locally (if needed)
@@ -38,14 +40,20 @@ These images are automatically built in TravisCI. To trigger TravisCI for a new 
     require 'openstudio'
     puts OpenStudio.getOpenStudioCLI
     ```
+  
+To release an official version, then continue with the steps below. Note that it is not recommended to officially release any of the RCs, just tag RCs as needed.
 
-### Build Locally
+* Create pull request from develop to master
+* Once the PR passes, then merge to master where TravisCI will build, tag, and push the official container to Docker Hub
+* Go to GitHub and release the master branch with the latest version (e.g., 2.9.1) and copy in the latest changelog entry.
+
+### Building Locally
   
 Begin by installing the [docker tool-kit](https://docs.docker.com/engine/installation/) version 17.03.1 or later, as 
 described in the linked documentation. Once the tool-kit is installed and activated, run the command below to build the base image with OpenStudio 2.6.1.
 
 ```
-docker build --target base -t openstudio-local --build-arg OPENSTUDIO_VERSION=2.6.1 --build-arg OPENSTUDIO_SHA=ab0dddde0b .
+docker build --target base -t openstudio-local --build-arg OPENSTUDIO_VERSION=2.9.1 --build-arg OPENSTUDIO_SHA=3472e8b799 .
 ```
 
 The version of OpenStudio and the SHAs are listed [here](https://github.com/NREL/OpenStudio/wiki/OpenStudio-Version-Compatibility-Matrix). 
@@ -62,11 +70,11 @@ For a more extensive discussion of the latest tag and associated best practices
 [please refer to this Medium article](https://medium.com/@mccode/the-misunderstood-docker-tag-latest-af3babfd6375). 
 The second option, downloading a release from DockerHub, requires determining the 
 [docker-openstudio tagged release](https://hub.docker.com/r/nrel/openstudio/tags/) that is desired, and then running 
-`docker pull nrel/openstudio:<tag>`. As an example, to download the 2.1.1 docker-openstudio image, the command would 
-be `docker pull nrel/openstudio:2.1.1`.
+`docker pull nrel/openstudio:<tag>`. As an example, to download the 2.9.1 docker-openstudio image, the command would 
+be `docker pull nrel/openstudio:2.9.1`.
 
 Once the desired container is available, either through a build or pull process, the next step is to run the container.
-To simply access the container tagged with 'tag', (where tag was respectively 'latest' or '2.1.1' in the above 
+To simply access the container tagged with 'tag', (where tag was respectively 'latest' or '2.9.1' in the above 
 paragraph,) run `docker run -it --rm nrel/openstudio:tag /bin/bash`. 
 
 To execute an OpenStudio Workflow directly from the command line requires 
@@ -79,7 +87,9 @@ be `docker run -it --rm -v=/Users/myuser/demo_os_files:/var/simdata/openstudio n
 
 If gem dependencies are required as part of the CLI outside of those 
 [packed with OpenStudio](https://github.com/NREL/OpenStudio/blob/develop/dependencies/ruby/Gemfile) please contact
- Kyle Benne, Ry Horsey, and Dan Macumber at their NREL email addresses.
+ Kyle Benne, Tim Coleman, or Nicholas Long at their NREL email addresses.
+
+
 
 # Issues
 
