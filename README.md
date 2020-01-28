@@ -54,11 +54,18 @@ described in the linked documentation. Once the tool-kit is installed and activa
 
 ```
 docker build --target base -t openstudio-local --build-arg OPENSTUDIO_VERSION=2.9.1 --build-arg OPENSTUDIO_SHA=3472e8b799 .
+
+# For testing local
+docker run -it --rm openstudio-local bash
+docker run -it -v $(pwd):/var/simdata/openstudio openstudio-local ruby /var/simdata/openstudio/test/test_run.rb
+
+# This will fail since openstudio does not allow compilation of native extensions (FFI)
+docker run -it -v $(pwd):/var/simdata/openstudio openstudio-local openstudio /var/simdata/openstudio/test/test_run.rb
 ```
 
 The version of OpenStudio and the SHAs are listed [here](https://github.com/NREL/OpenStudio/wiki/OpenStudio-Version-Compatibility-Matrix). 
 
-If the `--target` is not passed, then the docker build will contain only the CLI. 
+If the `--target` is not passed, then the docker build will contain only the CLI (if commented out in the CLI)
 
 ## Executing OpenStudio Container
 
