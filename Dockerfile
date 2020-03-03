@@ -1,4 +1,4 @@
-FROM ubuntu:14.04 AS base
+FROM ubuntu:16.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
@@ -10,9 +10,11 @@ ARG DOWNLOAD_PREFIX=""
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
 ARG OPENSTUDIO_VERSION
+ARG OPENSTUDIO_VERSION_EXT
 ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=1.14.4
+ARG OS_BUNDLER_VERSION=1.17.1
 ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
+ENV OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT
 ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
 ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
 
@@ -22,7 +24,7 @@ ENV RUBY_VERSION=2.2.4 \
     RUBY_SHA=b6eff568b48e0fda76e5a36333175df049b204e91217aa32a65153cc0cdcb761
 
 # Don't combine with above since ENV vars are not initialized until after the above call
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies including Qt5,
@@ -46,18 +48,21 @@ RUN apt-get update && apt-get install -y autoconf \
         libsm6 \
         libssl-dev \
         libtool \
-        libwxgtk3.0-0 \
+        libwxgtk3.0-0v5 \
         libxi6 \
         libxml2-dev \
+        locales \
+        sudo \
         zlib1g-dev \
     && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/develop/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
     && chmod +x /usr/local/bin/install_ruby.sh \
     && /usr/local/bin/install_ruby.sh $RUBY_VERSION $RUBY_SHA \
-    && if [ -z "${DOWNLOAD_PREFIX}" ]; then \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
-       else \
-            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION.$OPENSTUDIO_SHA-Linux.deb; \
-       fi \
+    && if [ -z "${DOWNLOAD_PREFIX}" ]; \
+        then \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$OPENSTUDIO_VERSION/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
+        else \
+            export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/$DOWNLOAD_PREFIX/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb; \
+    fi \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     # Verify that the download was successful (not access denied XML from s3)
@@ -67,11 +72,12 @@ RUN apt-get update && apt-get install -y autoconf \
     && rm -f /usr/local/bin/install_ruby.sh \
     && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
-    && if dpkg --compare-versions "${OPENSTUDIO_VERSION}" "gt" "2.5.1"; then \
+    && if dpkg --compare-versions "${OPENSTUDIO_VERSION}" "gt" "2.5.1"; \
+        then \
             rm -rf /usr/local/openstudio-${OPENSTUDIO_VERSION}/SketchUpPlugin; \
-       else \
+        else \
             rm -rf /usr/SketchUpPlugin; \
-       fi \
+    fi \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
@@ -83,17 +89,15 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/e
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
 RUN OLDSTD="gem 'openstudio-standards'" && \
-    NEWSTD="gem 'openstudio-standards', github: 'NREL/openstudio-standards', branch: 'la100'" && \
-    sed -i -e "s|$OLDSTD.*|$NEWSTD|g" /var/oscli/Gemfile && \
-    OLDWFG="gem 'openstudio-workflow'" && \
-    NEWWFG="gem 'openstudio-workflow', github: 'NREL/openstudio-workflow-gem', branch: 'develop'" && \
-    sed -i -e "s|$OLDWFG.*|$NEWWFG|g" /var/oscli/Gemfile
+    NEWSTD="gem 'openstudio-standards', github: 'NREL/openstudio-standards', branch: 'comstock_fixes'" && \
+    sed -i -e "s|$OLDSTD.*|$NEWSTD|g" /var/oscli/Gemfile
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
-RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-0ab13261c384/.git \
-    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-0ab13261c384/test \
+RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-f413d9998643/.git \
+    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-f413d9998643/test \
     /var/oscli/gems/ruby/2.2.0/cache/bundler
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
@@ -103,7 +107,7 @@ RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/ge
 
 CMD [ "/bin/bash" ]
 
-FROM ubuntu:14.04 AS cli
+FROM ubuntu:16.04 AS cli
 
 ARG OPENSTUDIO_VERSION
 
@@ -115,10 +119,15 @@ COPY --from=base /var/oscli/ /var/oscli/
 RUN apt-get update && apt-get install -y --no-install-recommends \
             libdbus-glib-1-2 \
             libglu1 \
-     && rm -rf /var/lib/apt/lists/*
+            libssl-dev \
+            libpng-dev \
+            libgdbm-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # link executable from /usr/local/bin
 RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}/bin/openstudio /usr/local/bin/openstudio
+ENV LC_ALL=C
 
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
+
