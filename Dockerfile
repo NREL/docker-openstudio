@@ -93,11 +93,12 @@ RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
 RUN OLDSTD="gem 'openstudio-standards'" && \
-    NEWSTD="gem 'openstudio-standards', github: 'NREL/openstudio-standards', branch: 'comstock_fixes'" && \
+    NEWSTD="gem 'openstudio-standards', github: 'NREL/openstudio-standards', branch: 'master'" && \
     sed -i -e "s|$OLDSTD.*|$NEWSTD|g" /var/oscli/Gemfile
+RUN sed -i -e '/openstudio-standards/d' openstudio-gems.gemspec
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
-RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-f413d9998643/.git \
-    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-f413d9998643/test \
+RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-81ac9359b649/.git \
+    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-81ac9359b649/test \
     /var/oscli/gems/ruby/2.2.0/cache/bundler
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
