@@ -12,7 +12,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 ARG OPENSTUDIO_VERSION
 # ARG OPENSTUDIO_VERSION_EXT
 # ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=1.17.1
+ARG OS_BUNDLER_VERSION=2.1.4
 # ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
 # ENV OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT
 # ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
@@ -22,7 +22,7 @@ ENV RUBY_VERSION=2.5.1
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-beta%2Bc1e87e9d3b-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-beta%2B9fcb8418a5-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
