@@ -6,8 +6,8 @@ install:
 env:
   global:
   # setting explicitly in Dockerfile for the develop3 branch
-    - OPENSTUDIO_VERSION: 3.0.0-beta
-    # - OPENSTUDIO_VERSION_EXT: 3-prerelease-rc1
+    - OPENSTUDIO_VERSION: 3.0.0
+    - OPENSTUDIO_VERSION_EXT: "-beta"
     # - OPENSTUDIO_SHA: d3ec7ff9b5
     # - DOWNLOAD_PREFIX: develop3/
 jobs:
@@ -16,11 +16,8 @@ jobs:
       sudo: required
       script:
         - docker build --target base -t openstudio:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT --build-arg DOWNLOAD_PREFIX=$DOWNLOAD_PREFIX .
-        # - docker build --target cli -t openstudio-cli:latest --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA --build-arg DOWNLOAD_PREFIX=$DOWNLOAD_PREFIX .
         - docker run -it openstudio:latest openstudio openstudio_version
-        # - docker run -it openstudio-cli:latest openstudio openstudio_version
         - docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
-        # Run model via ruby script using system gems
         - docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
         # in theory, we'd like to run the ruby test script from the cli (no ruby installed on cli image).  it fails though
         # - docker run -it -v $(pwd):/var/simdata/openstudio openstudio-cli:latest openstudio /var/simdata/openstudio/test/test_run.rb

@@ -10,7 +10,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
 ARG OPENSTUDIO_VERSION
-# ARG OPENSTUDIO_VERSION_EXT
+ARG OPENSTUDIO_VERSION_EXT
 # ARG OPENSTUDIO_SHA
 ARG OS_BUNDLER_VERSION=2.1.0
 # ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
@@ -57,15 +57,15 @@ RUN apt-get update && apt-get install -y \
 
 
 ## Add RUBYLIB link for openstudio.rb
-ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
-ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
+ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/EnergyPlus/energyplus
 
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile /var/oscli/ && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/Gemfile.lock /var/oscli/ && \
-    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby/openstudio-gems.gemspec /var/oscli/
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile /var/oscli/ && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile.lock /var/oscli/ && \
+    cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 
@@ -73,5 +73,8 @@ RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
 RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
+
+# May need this for syscalls that do not have ext in path
+RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT} /usr/local/openstudio-${OPENSTUDIO_VERSION}
 
 CMD [ "/bin/bash" ]
