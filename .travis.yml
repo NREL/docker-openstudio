@@ -7,7 +7,7 @@ env:
   global:
   # setting explicitly in Dockerfile for the develop3 branch
     - OPENSTUDIO_VERSION: 3.0.0
-    - OPENSTUDIO_VERSION_EXT: "-beta"
+    - OPENSTUDIO_VERSION_EXT: "-rc1"
     # - OPENSTUDIO_SHA: d3ec7ff9b5
     # - DOWNLOAD_PREFIX: develop3/
 jobs:
