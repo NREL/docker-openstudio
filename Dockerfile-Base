@@ -1,0 +1,36 @@
+# This is the base image used to build OpenStudio later
+# From ubuntu, installs all dependencies and Ruby
+# docker build -f Dockerfile-Base -t nrel/openstudio:builder .
+FROM ubuntu:18.04 AS builder
+
+MAINTAINER Julien Marrec julien@effibem.com
+
+# This can be overriden in the build call: `docker build --build-arg OS_BUNDLER_VERSION=2.1.1`
+# But we also set it as an ENV var so it's exported to dependent images and running containers
+ARG OS_BUNDLER_VERSION=2.1.1
+# TODO: This should be 2.5.5, so from rbenv / rvm or a PPA
+ENV RUBY_VERSION=2.5.1
+    OS_BUNDLER_VERSION $OS_BUNDLER_VERSION
+# Install dependencies such as ruby, bundler, git, etc
+# gdebi handles the installation of OpenStudio's dependencies
+# install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
+# such as singularity.
+
+RUN apt-get update && apt-get install -y \
+        curl \
+        vim \
+        gdebi-core \
+        ruby2.5 \
+        ruby-dev \
+        libffi-dev \
+        build-essential \
+        zlib1g-dev \
+        vim \
+        git \
+        locales \
+        sudo \
+    && rm -rf /var/lib/apt/lists/* \
+    && locale-gen en_US en_US.UTF-8 \
+    && dpkg-reconfigure locales \
+    # The OpenStudio Gemfile contains a fixed bundler version, so you have to install it
+    && gem install bundler -v $OS_BUNDLER_VERSION
