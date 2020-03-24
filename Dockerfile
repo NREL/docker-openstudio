@@ -1,8 +1,64 @@
-FROM ubuntu:18.04 AS base
+# This Dockerfile uses multi-stage builds
+
+#######################################################################
+#                     B U I L D E R    I M A G E                      #
+#######################################################################
+
+
+# This is the base image used to build OpenStudio later
+# From ubuntu, installs all dependencies and Ruby
+
+# To build only this stage, and tag it as nrel/openstudio:builder
+# docker build --target builder -t nrel/openstudio:builder .
+FROM ubuntu:18.04 AS builder
+
+MAINTAINER Julien Marrec julien@effibem.com
+
+# This can be overriden in the build call: `docker build --build-arg OS_BUNDLER_VERSION=2.1.1`
+# But we also set it as an ENV var so it's exported to dependent images and running containers
+ARG OS_BUNDLER_VERSION=2.1.0
+# TODO: This should be 2.5.5, so from rbenv / rvm or a PPA
+ENV RUBY_VERSION=2.5.1 \
+    OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
+# Install dependencies such as ruby, bundler, git, etc
+# gdebi handles the installation of OpenStudio's dependencies
+# install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
+# such as singularity.
+
+RUN apt-get update && apt-get install -y \
+        curl \
+        vim \
+        gdebi-core \
+        ruby2.5 \
+        ruby-dev \
+        libffi-dev \
+        build-essential \
+        zlib1g-dev \
+        vim \
+        git \
+        locales \
+        sudo \
+    && rm -rf /var/lib/apt/lists/* \
+    && locale-gen en_US en_US.UTF-8 \
+    && dpkg-reconfigure locales \
+    # The OpenStudio Gemfile contains a fixed bundler version, so you have to install it
+    && gem install bundler -v $OS_BUNDLER_VERSION
+
+
+#######################################################################
+#                  O P E N S T U D I O    I M A G E                   #
+#######################################################################
+
+# This image uses the builder one (ubuntu + dependencies and ruby)
+# and simply installs OpenStudio on it and the right ruby gems
+
+# Note:Locally, `FROM builder as base` works just fine.
+# But the goal is for travis to download the right image as it can't store it on disk, so instead we use the tag.
+FROM nrel/openstudio:builder as base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
-# If installing a CI build version of OpenStudio, then pass in the CI path into the build command. For example:
+# If installing a CI-built version of OpenStudio, then pass in the CI path into the build command. For example:
 #   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
 # ARG DOWNLOAD_PREFIX=""
 
@@ -12,57 +68,32 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_VERSION_EXT
 # ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=2.1.0
 # ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
 # ENV OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT
 # ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
 # ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
-ENV RUBY_VERSION=2.5.1
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
-
+# Note: in URL, `%2B` = `+`
 ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-rc1%2B7e86eb3b12-Linux.deb
 
-# Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
-
-# install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
-# such as singularity.
-RUN apt-get update && apt-get install -y \
-        curl \
-        vim \
-        gdebi-core \
-        ruby2.5 \
-        ruby-dev \ 
-        libffi-dev \ 
-        build-essential \
-        zlib1g-dev \
-        vim \ 
-        git \
-	    locales \
-        sudo \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.0-rc1/$OPENSTUDIO_DOWNLOAD_FILENAME \
-
-    && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
+RUN export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.0-rc1/$OPENSTUDIO_DOWNLOAD_FILENAME \
+    && echo "OpenStudio Package Download URL is: ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
-    && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
-    # Cleanup
-    RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
-    && rm -rf /var/lib/apt/lists/* \
-    && locale-gen en_US en_US.UTF-8 \
-    && dpkg-reconfigure locales
-
+    && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME
+# Cleanup
+RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME
 
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/EnergyPlus/energyplus
 
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
-RUN gem install bundler -v $OS_BUNDLER_VERSION && \
-    mkdir /var/oscli && \
+RUN mkdir /var/oscli && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile /var/oscli/ && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile.lock /var/oscli/ && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/openstudio-gems.gemspec /var/oscli/
