@@ -22,7 +22,7 @@ ENV RUBY_VERSION=2.5.1
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-rc2%2Be7ce997dc3-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-rc2%2B5c01d5ec3c-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y \
         vim \
         gdebi-core \
         ruby2.5 \
+        libsqlite3-dev \
         ruby-dev \ 
         libffi-dev \ 
         build-essential \
