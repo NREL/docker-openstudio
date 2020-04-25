@@ -18,11 +18,12 @@ ARG OS_BUNDLER_VERSION=2.1.0
 # ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
 # ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
 ENV RUBY_VERSION=2.5.1
+ENV BUNDLE_WITHOUT=native_ext
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0-rc1%2B7e86eb3b12-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.0.0%2B1c9617fa4e-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -34,6 +35,7 @@ RUN apt-get update && apt-get install -y \
         vim \
         gdebi-core \
         ruby2.5 \
+        libsqlite3-dev \
         ruby-dev \ 
         libffi-dev \ 
         build-essential \
@@ -42,7 +44,7 @@ RUN apt-get update && apt-get install -y \
         git \
 	    locales \
         sudo \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.0-rc1/$OPENSTUDIO_DOWNLOAD_FILENAME \
+    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.0/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
@@ -67,12 +69,12 @@ RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile.lock /var/oscli/ && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
-RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
+RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems openstudio_version
+RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
 
 # May need this for syscalls that do not have ext in path
 RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT} /usr/local/openstudio-${OPENSTUDIO_VERSION}
