@@ -54,7 +54,7 @@ RUN apt-get update && apt-get install -y autoconf \
         locales \
         sudo \
         zlib1g-dev \
-    && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/develop/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
+    && curl -sL https://raw.githubusercontent.com/NREL/OpenStudio-server/2.9.X-LTS/docker/deployment/scripts/install_ruby.sh -o /usr/local/bin/install_ruby.sh \
     && chmod +x /usr/local/bin/install_ruby.sh \
     && /usr/local/bin/install_ruby.sh $RUBY_VERSION $RUBY_SHA \
     && if [ -z "${DOWNLOAD_PREFIX}" ]; \
@@ -97,8 +97,8 @@ RUN OLDSTD="gem 'openstudio-standards'" && \
     sed -i -e "s|$OLDSTD.*|$NEWSTD|g" /var/oscli/Gemfile
 RUN sed -i -e '/openstudio-standards/d' openstudio-gems.gemspec
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --jobs=4 --retry=3
-RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-81ac9359b649/.git \
-    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-81ac9359b649/test \
+RUN rm -rf /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-9d6da158d7d4/.git \
+    /var/oscli/gems/ruby/2.2.0/bundler/gems/openstudio-standards-9d6da158d7d4/test \
     /var/oscli/gems/ruby/2.2.0/cache/bundler
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
