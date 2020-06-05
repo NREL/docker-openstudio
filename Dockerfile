@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y \
         git \
 	    locales \
         sudo \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.1/$OPENSTUDIO_DOWNLOAD_FILENAME \
+    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/v3.0.1-rc1/$OPENSTUDIO_DOWNLOAD_FILENAME \
 
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
