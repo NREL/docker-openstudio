@@ -23,7 +23,7 @@ ENV BUNDLE_WITHOUT=native_ext
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.1.0-rc4%2B3e1bd3afec-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.1.0-rc4%2B2717588ec4-Linux.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
