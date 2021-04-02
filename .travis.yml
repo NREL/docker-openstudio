@@ -8,7 +8,7 @@ env:
   # setting explicitly in Dockerfile for 
     - OPENSTUDIO_VERSION: 3.1.1
     - OPENSTUDIO_VERSION_EXT: "-alpha"
-    - OPENSTUDIO_SHA: 83b05b54a0
+    - OPENSTUDIO_SHA: 634725bf9f
 jobs:
   include:
     - stage: test and build
