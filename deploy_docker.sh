@@ -2,8 +2,8 @@
 IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 echo "image would be tagged as $IMAGETAG if this were master branch"
 IMAGETAG=skip
-if [ "${TRAVIS_BRANCH}" == "2.9.X-LTS" ]; then
-    IMAGETAG=2.9.X-LTS
+if [ "${TRAVIS_BRANCH}" == "HVACFlexMeasures" ]; then
+    IMAGETAG=flex
 elif [ "${TRAVIS_BRANCH}" == "develop" ]; then
     IMAGETAG=develop
 elif [ "${TRAVIS_BRANCH}" == "master" ]; then
