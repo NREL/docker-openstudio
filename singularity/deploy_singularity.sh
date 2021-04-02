@@ -37,6 +37,8 @@ elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
     IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
+elif [ "${TRAVIS_BRANCH}" == "HVACFlexMeasures" ]; then
+    IMAGETAG=flex
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
