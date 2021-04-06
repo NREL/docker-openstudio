@@ -9,7 +9,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
-ARG OPENSTUDIO_VERSION=3.1.1
+ARG OPENSTUDIO_VERSION=3.2.0
 ARG OPENSTUDIO_VERSION_EXT=-alpha
 # ARG OPENSTUDIO_SHA
 ARG OS_BUNDLER_VERSION=2.1.4
@@ -23,7 +23,7 @@ ENV BUNDLE_WITHOUT=native_ext
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.1.1-alpha%2B83b05b54a0-Ubuntu-18.04.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.2.0-alpha%2Ba007b7801e-Ubuntu-18.04.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
