@@ -6,9 +6,9 @@ install:
 env:
   global:
   # setting explicitly in Dockerfile for 
-    - OPENSTUDIO_VERSION: 3.1.1
+    - OPENSTUDIO_VERSION: 3.2.0
     - OPENSTUDIO_VERSION_EXT: "-alpha"
-    - OPENSTUDIO_SHA: 83b05b54a0
+    - OPENSTUDIO_SHA: a007b7801e
 jobs:
   include:
     - stage: test and build
