@@ -9,21 +9,17 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 # OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
 # inherit the variables into child containers
-ARG OPENSTUDIO_VERSION
-ARG OPENSTUDIO_VERSION_EXT
-# ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=2.1.0
-# ENV OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION
-# ENV OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT
-# ENV OPENSTUDIO_SHA=$OPENSTUDIO_SHA
-# ENV OS_BUNDLER_VERSION=$OS_BUNDLER_VERSION
-ENV RUBY_VERSION=2.5.1
+ARG OPENSTUDIO_VERSION=3.2.0
+ARG OPENSTUDIO_VERSION_EXT=-alpha
+#ARG OPENSTUDIO_SHA
+ARG OS_BUNDLER_VERSION=2.1.4
+ENV RUBY_VERSION=2.7.2
 ENV BUNDLE_WITHOUT=native_ext
 
 # Don't combine with above since ENV vars are not initialized until after the above call
 # ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
 
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.1.0%2Be165090621-Linux.deb
+ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.2.0-rc1%2B2249bb4700-Ubuntu-18.04.deb
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -34,18 +30,16 @@ RUN apt-get update && apt-get install -y \
         curl \
         vim \
         gdebi-core \
-        ruby2.5 \
         libsqlite3-dev \
-        ruby-dev \ 
+        libssl-dev \ 
         libffi-dev \ 
         build-essential \
         zlib1g-dev \
         vim \ 
         git \
-	    locales \
+        locales \
         sudo \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/3.1.0/$OPENSTUDIO_DOWNLOAD_FILENAME \
-
+    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/3_2_0_rc/$OPENSTUDIO_DOWNLOAD_FILENAME \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
     # Verify that the download was successful (not access denied XML from s3)
@@ -58,6 +52,12 @@ RUN apt-get update && apt-get install -y \
     && dpkg-reconfigure locales
 
 
+RUN curl -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
+    && tar -xvzf ruby-2.7.2.tar.gz \
+    && cd ruby-2.7.2 \
+    && ./configure \
+    && make && make install 
+
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/EnergyPlus/energyplus
@@ -65,10 +65,12 @@ ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_
 # The OpenStudio Gemfile contains a fixed bundler version, so you have to install and run specific to that version
 RUN gem install bundler -v $OS_BUNDLER_VERSION && \
     mkdir /var/oscli && \
+    ls /usr/local && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile /var/oscli/ && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/Gemfile.lock /var/oscli/ && \
     cp /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby/openstudio-gems.gemspec /var/oscli/
 WORKDIR /var/oscli
+RUN bundle -v
 RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
 
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
