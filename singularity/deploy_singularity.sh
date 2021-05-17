@@ -31,11 +31,13 @@ ls -altR
 
 # Determine the name of the tag
 IMAGETAG=skip
-if [ "${TRAVIS_BRANCH}" == "develop" ]; then
+if [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
     IMAGETAG=develop
-elif [ "${TRAVIS_BRANCH}" == "master" ]; then
+elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
+    IMAGETAG="2.9.X-LTS"
+elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
+elif [ "${GITHUB_REF}" == "refs/heads/singularity" ]; then
     IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
 fi
 

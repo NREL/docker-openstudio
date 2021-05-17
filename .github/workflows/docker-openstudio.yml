@@ -1,0 +1,50 @@
+name: openstudio-server
+
+on: [push, pull_request]
+
+# example of how to restrict to one branch and push event
+#on:
+#  push:
+#    branches:
+#      - test_branch
+
+env:
+  USE_TESTING_TIMEOUTS: "true"
+  OPENSTUDIO_VERSION: 3.2.0 
+  OPENSTUDIO_SHA: e11f0a08b2
+  OPENSTUDIO_VERSION_EXT: ""
+
+
+jobs:
+  docker:
+    runs-on: ubuntu-18.04
+    steps: 
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: test and build
+      shell: bash 
+      shell: bash 
+      run: |
+          docker build --target base -t openstudio:latest \
+          --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
+          --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA \
+          --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT \
+          --build-arg DOWNLOAD_PREFIX=$DOWNLOAD_PREFIX .
+          docker run -it openstudio:latest openstudio openstudio_version
+          docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
+          docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
+    - name: deploy_docker
+      if: ${{ success() }}  
+      shell: bash 
+      run: ./deploy_docker.sh
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    - name: test and build
+      if: | 
+        github.ref == 'refs/heads/master' || 
+        github.ref == 'refs/heads/develop' || 
+        github.ref == 'refs/heads/setup_github_actions' 
+      shell: bash 
+      run: ./singularity/deploy_singularity.sh
+        # https://docs.github.com/en/actions/reference/encrypted-secrets
