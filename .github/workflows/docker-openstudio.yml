@@ -29,10 +29,10 @@ jobs:
           --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA \
           --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT \
           --build-arg DOWNLOAD_PREFIX=$DOWNLOAD_PREFIX .
-          docker run -it openstudio:latest openstudio openstudio_version
-          docker run -it openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
-          docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
-          docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
+          docker run openstudio:latest openstudio openstudio_version
+          docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          docker run -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
+          docker run -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
     - name: deploy_docker
       if: ${{ success() }} &&  
          github.ref == 'refs/heads/master' ||
