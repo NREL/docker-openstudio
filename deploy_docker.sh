@@ -17,7 +17,7 @@ elif [ "${GITHUB_REF}" == "refs/heads/setup_github_actions" ]; then
 fi
 
 # GITHUB_BASE_REF is only set on Pull Request events. Do not build those
-if [ "${IMAGETAG}" != "skip" ] && [[ ! -z "${GITHUB_BASE_REF}" ]]; then
+if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
     echo "Tagging image as $IMAGETAG"
 
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
