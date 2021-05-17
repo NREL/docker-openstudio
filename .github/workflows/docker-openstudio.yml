@@ -35,13 +35,19 @@ jobs:
           docker run -it -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
           docker run -it -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
     - name: deploy_docker
-      if: ${{ success() }}  
+      if: ${{ success() }} &&  
+         github.ref == 'refs/heads/master' ||
+         github.ref == 'refs/heads/develop' ||
+         github.ref == 'refs/heads/setup_github_actions'
       shell: bash 
       run: ./deploy_docker.sh
+      env:
+        # On forked Pull Requests secrets will not be sent to the runner. See more info here:
+        # https://docs.github.com/en/actions/reference/encrypted-secrets
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
     - name: test and build
-      if: | 
+      if: ${{ success() }} &&  
         github.ref == 'refs/heads/master' || 
         github.ref == 'refs/heads/develop' || 
         github.ref == 'refs/heads/setup_github_actions' 
