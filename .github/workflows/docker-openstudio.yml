@@ -23,7 +23,6 @@ jobs:
       uses: actions/checkout@v2
     - name: test and build
       shell: bash 
-      shell: bash 
       run: |
           docker build --target base -t openstudio:latest \
           --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
