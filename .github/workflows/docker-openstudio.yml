@@ -19,8 +19,11 @@ jobs:
   docker:
     runs-on: ubuntu-18.04
     steps: 
-    - name: Check out repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
     - name: test and build
       shell: bash 
       run: |
@@ -33,7 +36,8 @@ jobs:
           docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
           docker run -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
           docker run -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
-    - name: deploy_docker
+
+    - name: deploy docker
       if: ${{ success() }} &&  
          github.ref == 'refs/heads/master' ||
          github.ref == 'refs/heads/develop' ||
@@ -43,7 +47,8 @@ jobs:
       env:
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
-    - name: test and build
+
+    - name: deploy singularity
       if: ${{ success() }} &&  
         github.ref == 'refs/heads/master' || 
         github.ref == 'refs/heads/develop' || 
