@@ -41,7 +41,7 @@ jobs:
       if: ${{ success() }} &&  
          github.ref == 'refs/heads/master' ||
          github.ref == 'refs/heads/develop' ||
-         github.ref == 'refs/heads/setup_github_actions'
+         github.ref == 'refs/heads/custom_branch_name'
       shell: bash 
       run: ./deploy_docker.sh
       env:
@@ -52,7 +52,7 @@ jobs:
       if: ${{ success() }} &&  
         github.ref == 'refs/heads/master' || 
         github.ref == 'refs/heads/develop' || 
-        github.ref == 'refs/heads/setup_github_actions' 
+        github.ref == 'refs/heads/custom_brach_name' 
       shell: bash 
       run: ./singularity/deploy_singularity.sh
       env:

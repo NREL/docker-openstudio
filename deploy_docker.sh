@@ -11,8 +11,7 @@ elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     # Retrieve the version number from rails
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 # Uncomment and set branch name for custom builds.
-# Currently setting this to setup_github_actions to test upload.
-elif [ "${GITHUB_REF}" == "refs/heads/setup_github_actions" ]; then
+elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
     IMAGETAG=experimental
 fi
 
