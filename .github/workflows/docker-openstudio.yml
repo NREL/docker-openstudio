@@ -41,8 +41,6 @@ jobs:
       shell: bash 
       run: ./deploy_docker.sh
       env:
-        # On forked Pull Requests secrets will not be sent to the runner. See more info here:
-        # https://docs.github.com/en/actions/reference/encrypted-secrets
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
     - name: test and build
@@ -52,4 +50,8 @@ jobs:
         github.ref == 'refs/heads/setup_github_actions' 
       shell: bash 
       run: ./singularity/deploy_singularity.sh
-        # https://docs.github.com/en/actions/reference/encrypted-secrets
+      env:
+         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+

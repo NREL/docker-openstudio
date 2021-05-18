@@ -37,8 +37,10 @@ elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
     IMAGETAG="2.9.X-LTS"
 elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-elif [ "${GITHUB_REF}" == "refs/heads/singularity" ]; then
-    IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
+ # Uncomment and set branch name for custom builds.
+ # Currently setting this to setup_github_actions to test upload.
+elif [ "${GITHUB_REF}" == "refs/heads/setup_github_actions" ]; then
+    IMAGETAG=experimental
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
