@@ -16,7 +16,7 @@ docker push localhost:5000/docker-openstudio
 docker ps
 
 # Launch the singularity container
-docker run -it --rm --privileged --network=container:registry -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity /root/build/singularity/build_singularity.sh
+docker run --rm --privileged --network=container:registry -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity /root/build/singularity/build_singularity.sh
 
 # Shut down and remove the local registry
 docker container stop registry && docker container rm -v registry

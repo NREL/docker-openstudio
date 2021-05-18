@@ -6,7 +6,7 @@ import argparse
 def image_file_name_and_s3_key(basename, version, sha=None):
     name = '%s-%s-Singularity.simg' % (basename, version)
     if sha:
-        name = '%s-%s.%s-Singularity.simg' % (basename, version, sha)
+        name = '%s-%s.%s-test-Singularity.simg' % (basename, version, sha)
     s3_key = '%s/%s' % (version, name)
 
     return s3_key
