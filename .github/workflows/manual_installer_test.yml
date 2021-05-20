@@ -6,7 +6,7 @@ on:
       os_installer_link:
         description: 'The Link where to download the LINUX OpenStudio SDK Installer (.DEB)'
         required: true
-        default: 'https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.2.0%2Be11f0a08b2-Ubuntu-18.04.deb'
+        default: 'https://openstudio-builds.s3.amazonaws.com/3.2.0/OpenStudio-3.2.0%2Be11f0a08b2-Ubuntu-18.04.deb'
       os_version:
         description: 'OS version (e.g. 3.2.0). Must match .deb installer'
         required: true
