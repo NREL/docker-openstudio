@@ -52,6 +52,6 @@ jobs:
         docker run -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
     - name: deploy docker
-       if: ${{ success() }}
-       shell: bash
-       run: ./deploy_docker.sh
+      if: ${{ success() }}
+      shell: bash
+      run: ./deploy_docker.sh
