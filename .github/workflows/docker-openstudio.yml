@@ -1,4 +1,4 @@
-name: openstudio-server
+name: openstudio-docker
 
 on: [push, pull_request]
 
