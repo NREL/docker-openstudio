@@ -55,3 +55,6 @@ jobs:
       if: ${{ success() }}
       shell: bash
       run: ./deploy_docker.sh
+      env:
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
