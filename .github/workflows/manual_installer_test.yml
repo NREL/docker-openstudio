@@ -1,4 +1,4 @@
-name: Test OS SDK Installer - Full Suite
+name: Build, test and deploy Docker image
 
 on:
   workflow_dispatch:
