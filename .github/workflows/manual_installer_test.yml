@@ -8,11 +8,11 @@ on:
         required: true
         default: 'https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.2.0%2Be11f0a08b2-Ubuntu-18.04.deb'
       os_version:
-        description: 'OS version (e.g. 3.2.0)'
+        description: 'OS version (e.g. 3.2.0). Must match .deb installer'
         required: true
       os_versioni_ext:
-        description: 'OS version extension (e.g. -alpha)'
-        required: true
+        description: 'OS version extension (e.g. -alpha). Must match .deb installer'
+        required: false
       docker_image_tag:
         description: 'Docker image tag. Tag name will be prefixed with "dev-" unless tag = "development"'
         required: true
