@@ -10,7 +10,7 @@ on:
       os_version:
         description: 'OS version (e.g. 3.2.0). Must match .deb installer'
         required: true
-      os_versioni_ext:
+      os_version_ext:
         description: 'OS version extension (e.g. -alpha). Must match .deb installer'
         required: false
       docker_image_tag:
