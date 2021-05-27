@@ -20,7 +20,7 @@ on:
 env:
   OPENSTUDIO_DOWNLOAD_URL: ${{ github.event.inputs.os_installer_link }} # required
   OPENSTUDIO_VERSION: ${{ github.event.inputs.os_version }} # required
-  OPENSTUDIO_VERSION_EXT: ${{ github.event.inputs.os_versioni_ext }} # required
+  OPENSTUDIO_VERSION_EXT: ${{ github.event.inputs.os_version_ext }} # required
   DOCKER_MANUAL_IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }} # required
 
 jobs:
