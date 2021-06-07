@@ -2,25 +2,14 @@ FROM ubuntu:18.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
-# If installing a CI build version of OpenStudio, then pass in the CI path into the build command. For example:
-#   docker build --build-arg DOWNLOAD_PREFIX="_CI/OpenStudio"
-# ARG DOWNLOAD_PREFIX=""
-
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
-# OPENSTUDIO_VERSION=2.6.0 --build-arg OPENSTUDIO_SHA=e3cb91f98a .` in the .travis.yml. Set with the ENV keyword to
-# inherit the variables into child containers
-ARG OPENSTUDIO_VERSION=3.2.0
-ARG OPENSTUDIO_VERSION_EXT
-#ARG OPENSTUDIO_SHA
-ARG OS_BUNDLER_VERSION=2.1.4
+ARG OPENSTUDIO_VERSION=3.2.1
+ARG OPENSTUDIO_VERSION_EXT="-rc1"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/3.2.1-rc/OpenStudio-3.2.1-rc1%2Bdeb57b3585-Ubuntu-18.04.deb
+
+ENV OS_BUNDLER_VERSION=2.1.4
 ENV RUBY_VERSION=2.7.2
 ENV BUNDLE_WITHOUT=native_ext
-
-# Don't combine with above since ENV vars are not initialized until after the above call
-# ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Linux.deb
-
-ENV OPENSTUDIO_DOWNLOAD_FILENAME=OpenStudio-3.2.0%2Be11f0a08b2-Ubuntu-18.04.deb
-
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
 
@@ -39,9 +28,9 @@ RUN apt-get update && apt-get install -y \
         git \
         locales \
         sudo \
-    && export OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/3.2.0/$OPENSTUDIO_DOWNLOAD_FILENAME \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
+    && OPENSTUDIO_DOWNLOAD_FILENAME=$(ls *.deb) \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
@@ -57,6 +46,7 @@ RUN curl -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
     && cd ruby-2.7.2 \
     && ./configure \
     && make && make install 
+
 
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
