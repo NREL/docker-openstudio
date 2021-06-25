@@ -38,8 +38,8 @@ elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
 elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
  # Uncomment and set branch name for custom builds.
-elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
-    IMAGETAG=experimental
+elif [ "${GITHUB_REF}" == "refs/heads/HVACFlexMeasures-2-1" ]; then
+    IMAGETAG=flex-2
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
