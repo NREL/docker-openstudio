@@ -1,0 +1,60 @@
+name: Build, test and deploy Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      os_installer_link:
+        description: 'The Link where to download the LINUX OpenStudio SDK Installer (.DEB)'
+        required: true
+        default: 'https://openstudio-builds.s3.amazonaws.com/3.2.0/OpenStudio-3.2.0%2Be11f0a08b2-Ubuntu-18.04.deb'
+      os_version:
+        description: 'OS version (e.g. 3.2.0). Must match .deb installer'
+        required: true
+      os_version_ext:
+        description: 'OS version extension (e.g. -alpha). Must match .deb installer'
+        required: false
+      docker_image_tag:
+        description: 'Docker image tag. Tag name will be prefixed with "dev-" unless tag = "development"'
+        required: true
+
+env:
+  OPENSTUDIO_DOWNLOAD_URL: ${{ github.event.inputs.os_installer_link }} # required
+  OPENSTUDIO_VERSION: ${{ github.event.inputs.os_version }} # required
+  OPENSTUDIO_VERSION_EXT: ${{ github.event.inputs.os_version_ext }} # required
+  DOCKER_MANUAL_IMAGE_TAG: ${{ github.event.inputs.docker_image_tag }} # required
+
+jobs:
+  build_container:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: test and build
+      shell: bash
+      run: |
+        set -x
+        echo "Installer link: ${{ github.event.inputs.os_installer_link }}"
+        echo "OS SDK Version: ${{ github.event.inputs.os_version }}"
+        echo "OS SDK Version Extension: ${{ github.event.inputs.os_version_ext }}"
+        echo "DOCKER IMAGE TAG: ${{ github.event.inputs.docker_image_tag }}"
+        sudo apt update
+        docker build --target base -t openstudio:latest \
+        --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
+        --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT \
+        --build-arg OPENSTUDIO_DOWNLOAD_URL=$OPENSTUDIO_DOWNLOAD_URL .
+        docker run openstudio:latest openstudio openstudio_version
+        docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+        docker run -v $(pwd):/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
+        docker run -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
+
+    - name: deploy docker
+      if: ${{ success() }}
+      shell: bash
+      run: ./deploy_docker.sh
+      env:
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}

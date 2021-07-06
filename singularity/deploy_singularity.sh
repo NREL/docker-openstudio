@@ -16,7 +16,7 @@ docker push localhost:5000/docker-openstudio
 docker ps
 
 # Launch the singularity container
-docker run -it --rm --privileged --network=container:registry -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity /root/build/singularity/build_singularity.sh
+docker run --rm --privileged --network=container:registry -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity /root/build/singularity/build_singularity.sh
 
 # Shut down and remove the local registry
 docker container stop registry && docker container rm -v registry
@@ -31,14 +31,15 @@ ls -altR
 
 # Determine the name of the tag
 IMAGETAG=skip
-if [ "${TRAVIS_BRANCH}" == "develop" ]; then
+if [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
     IMAGETAG=develop
-elif [ "${TRAVIS_BRANCH}" == "master" ]; then
+elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
+    IMAGETAG="2.9.X-LTS"
+elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-elif [ "${TRAVIS_BRANCH}" == "singularity" ]; then
-    IMAGETAG=$( docker run -it openstudio:latest ruby -r openstudio -e "puts OpenStudio.openStudioVersion" )
-elif [ "${TRAVIS_BRANCH}" == "HVACFlexMeasures" ]; then
-    IMAGETAG=flex
+ # Uncomment and set branch name for custom builds.
+elif [ "${GITHUB_REF}" == "refs/heads/HVACFlexMeasures-2-1" ]; then
+    IMAGETAG=flex-2
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
