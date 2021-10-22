@@ -10,9 +10,9 @@ on: [push, pull_request]
 
 env:
   USE_TESTING_TIMEOUTS: "true"
-  OPENSTUDIO_VERSION: 3.2.1 
-  OPENSTUDIO_SHA: bdbdbc9da6
-  OPENSTUDIO_VERSION_EXT: ""
+  OPENSTUDIO_VERSION: 3.3.0 
+  OPENSTUDIO_SHA: fd35ae62b4
+  OPENSTUDIO_VERSION_EXT: "-rc1"
 
 
 jobs:
