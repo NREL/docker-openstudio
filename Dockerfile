@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 AS base
+FROM ubuntu:20.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
@@ -17,7 +17,6 @@ ENV BUNDLE_WITHOUT=native_ext
 # such as singularity.
 RUN apt-get update && apt-get install -y \
         curl \
-        vim \
         gdebi-core \
         libsqlite3-dev \
         libssl-dev \ 
