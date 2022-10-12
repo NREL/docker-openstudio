@@ -31,7 +31,10 @@ puts OpenStudio::Model.exampleModel.to_s
 
 # Grab the test files that are shipped with OpenStudio and put into a folder and run
 FileUtils.rm_rf 'test/compact_osw'
-if OpenStudio.openStudioVersion.to_version > '2.5.1'.to_version
+if OpenStudio.openStudioVersion.to_version >= '3.5.0'.to_version
+  FileUtils.cp_r "/usr/local/openstudio-#{OpenStudio.openStudioVersion}/Examples/compact_osw", 'test/.'
+  `/usr/local/bin/openstudio run -w test/compact_osw/compact_ruby_only.osw`
+elsif OpenStudio.openStudioVersion.to_version > '2.5.1'.to_version
   FileUtils.cp_r "/usr/local/openstudio-#{OpenStudio.openStudioVersion}/Examples/compact_osw", 'test/.'
   `/usr/local/bin/openstudio run -w test/compact_osw/compact.osw`
 else 

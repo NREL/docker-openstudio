@@ -6,9 +6,9 @@ on:
       os_installer_link:
         description: 'The Link where to download the LINUX OpenStudio SDK Installer (.DEB)'
         required: true
-        default: 'https://openstudio-builds.s3.amazonaws.com/3.3.0/OpenStudio-3.3.0%2Bad235ff36e-Ubuntu-18.04.deb'
+        default: 'https://github.com/NREL/OpenStudio/releases/download/v3.4.0/OpenStudio-3.4.0+4bd816f785-Ubuntu-20.04.deb'
       os_version:
-        description: 'OS version (e.g. 3.3.0). Must match .deb installer'
+        description: 'OS version (e.g. 3.4.0). Must match .deb installer'
         required: true
       os_version_ext:
         description: 'OS version extension (e.g. -alpha). Must match .deb installer'
@@ -25,7 +25,7 @@ env:
 
 jobs:
   build_container:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
