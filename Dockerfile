@@ -1,11 +1,11 @@
-FROM ubuntu:18.04 AS base
+FROM ubuntu:20.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
-ARG OPENSTUDIO_VERSION=3.4.0
-ARG OPENSTUDIO_VERSION_EXT=""
-ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-builds.s3.amazonaws.com/3.4.0/OpenStudio-3.4.0%2B4bd816f785-Ubuntu-18.04.deb
+ARG OPENSTUDIO_VERSION=3.5.0
+ARG OPENSTUDIO_VERSION_EXT="-rc1"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.5.0-rc1/OpenStudio-3.5.0-rc1+0aa781eed9-Ubuntu-20.04.deb
 
 ENV OS_BUNDLER_VERSION=2.1.4
 ENV RUBY_VERSION=2.7.2
@@ -17,7 +17,6 @@ ENV BUNDLE_WITHOUT=native_ext
 # such as singularity.
 RUN apt-get update && apt-get install -y \
         curl \
-        vim \
         gdebi-core \
         libsqlite3-dev \
         libssl-dev \ 

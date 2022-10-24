@@ -1,5 +1,26 @@
 # OpenStudio Docker Images
 
+# Version 3.5.0
+TODO
+
+# Version 3.4.0 
+TODO 
+
+# Verison 3.3.0 
+TODO 
+
+## Version 3.2.0
+TODO
+
+## Version 3.1.0 
+TODO
+
+## Version 3.0.0
+TODO 
+
+## Version 2.9.0
+OpenStudio Version 2.9.0, without CLI target
+
 ## Version 2.8.1
 Enable pre-releases.  Disable openstudio-cli images.
 
