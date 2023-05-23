@@ -21,7 +21,7 @@ docker run --rm --privileged --network=container:registry -v $(pwd):/root/build 
 # Shut down and remove the local registry
 docker container stop registry && docker container rm -v registry
 
-ls -altR
+#ls -altR
 
 # Test with non-root user. The -u 1000 is not needed when testing locally on OSX.
 # docker run -it --rm --privileged -u 1000 -v $(pwd):/root/build -v /var/run/docker.sock:/var/run/docker.sock singularity bash
@@ -37,9 +37,9 @@ elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
     IMAGETAG="2.9.X-LTS"
 elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
- # Uncomment and set branch name for custom builds.
-elif [ "${GITHUB_REF}" == "refs/heads/fix_singularity ]; then
-    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
+# Uncomment and set branch name for custom builds.
+#elif [ "${GITHUB_REF}" == "refs/heads/fix_singularity ]; then
+#    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
