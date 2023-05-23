@@ -43,8 +43,8 @@ elif [ "${GITHUB_REF}" == "refs/heads/fix_singularity ]; then
 fi
 
 # upload to s3. The OPENSTUDIO_SHA is taken from the env vars
-if [ "$IMAGETAG" != "skip" ]; then
-    pip install -r singularity/requirements.txt
-    python singularity/upload_s3.py
-fi
+#if [ "$IMAGETAG" != "skip" ]; then
+#    pip install -r singularity/requirements.txt
+#    python singularity/upload_s3.py
+#fi
 
