@@ -4,8 +4,8 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.7.0
-ARG OPENSTUDIO_VERSION_EXT="-rc1"
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0-rc1/OpenStudio-3.7.0-rc1+211bb633b0-Ubuntu-20.04-x86_64.deb
+ARG OPENSTUDIO_VERSION_EXT="-rc2"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0-rc2/OpenStudio-3.7.0-rc2+c0cbe73b51-Ubuntu-20.04-x86_64.deb
 ENV OS_BUNDLER_VERSION=2.1.4
 ENV RUBY_VERSION=2.7.2
 ENV BUNDLE_WITHOUT=native_ext
@@ -38,8 +38,10 @@ RUN apt-get update && apt-get install -y \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
+# RUN apt-get install ca-certificates 
+# RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
 
-RUN curl -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
+RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
     && tar -xvzf ruby-2.7.2.tar.gz \
     && cd ruby-2.7.2 \
     && ./configure \
@@ -64,7 +66,7 @@ RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jo
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-RUN openstudio --verbose --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
+RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
 
 # May need this for syscalls that do not have ext in path
 RUN ln -s /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT} /usr/local/openstudio-${OPENSTUDIO_VERSION}

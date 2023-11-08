@@ -3,12 +3,12 @@
 rm -rf mygems
 rm -f Gemfile.lock
 bundle install --path mygems
-openstudio --verbose --bundle Gemfile --bundle_path mygems test_gemfile.rb
+openstudio --loglevel Trace --bundle Gemfile --bundle_path mygems test_gemfile.rb
 
 rm -rf mygems
 rm -f Gemfile-git.lock
 bundle install --gemfile=Gemfile-git --path mygems
-openstudio --verbose --bundle Gemfile-git --bundle_path mygems test_gemfile_git.rb
+openstudio --loglevel Trace --bundle Gemfile-git --bundle_path mygems test_gemfile_git.rb
 
 # rm -rf mygems
 # rm -f Gemfile-native.lock
