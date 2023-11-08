@@ -8,7 +8,7 @@ openstudio --loglevel Trace --bundle Gemfile --bundle_path mygems test_gemfile.r
 rm -rf mygems
 rm -f Gemfile-git.lock
 bundle install --gemfile=Gemfile-git --path mygems
-openstudio --loglevel Trace--bundle Gemfile-git --bundle_path mygems test_gemfile_git.rb
+openstudio --loglevel Trace --bundle Gemfile-git --bundle_path mygems test_gemfile_git.rb
 
 # rm -rf mygems
 # rm -f Gemfile-native.lock
