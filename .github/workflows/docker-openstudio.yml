@@ -65,5 +65,5 @@ jobs:
     
     - uses: actions/upload-artifact@v3
       with:
-        name: singularity-image
+        name: apptainer-image
         path: /artifacts/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif
