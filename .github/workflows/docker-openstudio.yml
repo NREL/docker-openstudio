@@ -55,6 +55,11 @@ jobs:
         sudo apt update
         sudo apt install -y apptainer
 
+    - name: Upterm
+      uses: lhotari/action-upterm@v1
+      with:
+        limit-access-to-users: nmerket
+
     - name: build apptainer
       shell: bash
       run: |
