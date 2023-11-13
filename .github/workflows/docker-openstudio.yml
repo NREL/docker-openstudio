@@ -55,20 +55,14 @@ jobs:
         sudo apt update
         sudo apt install -y apptainer
 
-    - name: Upterm
-      uses: lhotari/action-upterm@v1
-      with:
-        limit-access-to-users: nmerket
-
     - name: build apptainer
       shell: bash
       run: |
-        mkdir -p /artifacts
         apptainer build \
-        /artifacts/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
+        OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
         docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
     
     - uses: actions/upload-artifact@v3
       with:
         name: apptainer-image
-        path: /artifacts/OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif
+        path: OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif
