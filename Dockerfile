@@ -4,8 +4,8 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.7.0
-ARG OPENSTUDIO_VERSION_EXT="-rc2"
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0-rc2/OpenStudio-3.7.0-rc2+c0cbe73b51-Ubuntu-20.04-x86_64.deb
+ARG OPENSTUDIO_VERSION_EXT="-rc3"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0-rc3/OpenStudio-3.7.0-rc3+37087fd612-Ubuntu-20.04-x86_64.deb
 ENV OS_BUNDLER_VERSION=2.1.4
 ENV RUBY_VERSION=2.7.2
 ENV BUNDLE_WITHOUT=native_ext
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
-# RUN apt-get install ca-certificates 
+RUN apt-get install ca-certificates 
 # RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
 
 RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
