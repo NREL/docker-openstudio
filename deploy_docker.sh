@@ -37,7 +37,7 @@ if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
 
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
-    docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
+    # docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
     docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
 
     exit $exit_status
