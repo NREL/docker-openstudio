@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 echo "image would be tagged as $IMAGETAG if this were master branch"
+echo "image would be tagged as "${IMAGETAG}-2204" if this were 2204-release branch"
 IMAGETAG=skip
 
 # Check branch name for correct tagging
@@ -14,7 +15,7 @@ elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
 # Uncomment and set branch name for custom builds.
 elif [ "${GITHUB_REF}" == "refs/heads/2204-release" ]; then
     # Retrieve the version number from rails
-    IMAGETAG="${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}:2204"
+    IMAGETAG="${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}-2204"
 # Uncomment and set branch name for custom builds.
 elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
     IMAGETAG="experimental"
