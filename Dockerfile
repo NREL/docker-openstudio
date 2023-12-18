@@ -1,11 +1,11 @@
-FROM ubuntu:20.04 AS base
+FROM ubuntu:22.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.7.0
 ARG OPENSTUDIO_VERSION_EXT=""
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.deb
+ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-22.04-x86_64.deb
 ENV OS_BUNDLER_VERSION=2.1.4
 ENV RUBY_VERSION=2.7.2
 ENV BUNDLE_WITHOUT=native_ext
@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
         locales \
         sudo \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
-    && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
+    && curl -k -SLO $OPENSTUDIO_DOWNLOAD_URL \
     && OPENSTUDIO_DOWNLOAD_FILENAME=$(ls *.deb) \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
@@ -38,14 +38,24 @@ RUN apt-get update && apt-get install -y \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
-# RUN apt-get install ca-certificates 
-# RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
+RUN apt-get update && apt-get install wget
+RUN echo "Start by installing openssl 1.1.1o" &&\
+    wget https://www.openssl.org/source/old/1.1.1/openssl-1.1.1o.tar.gz &&\
+    tar xfz openssl-1.1.1o.tar.gz && cd openssl-1.1.1o &&\
+    ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl '-Wl,-rpath,$(LIBRPATH)' &&\
+    make --quiet -j $(nproc) && make install --quiet && rm -Rf openssl-1.1.o* &&\
+    rm -rf /usr/local/ssl/certs &&\
+    ln -s /etc/ssl/certs /usr/local/ssl/certs
 
-RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
-    && tar -xvzf ruby-2.7.2.tar.gz \
-    && cd ruby-2.7.2 \
-    && ./configure \
-    && make && make install 
+RUN echo "Installing Ruby 2.7.2 via RVM" &&\
+    curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&\
+    curl -sSL https://rvm.io/pkuczynski.asc | gpg --import - &&\
+    curl -sSL https://get.rvm.io | bash -s stable &&\
+    usermod -a -G rvm root &&\
+    /usr/local/rvm/bin/rvm install 2.7.2 --with-openssl-dir=/usr/local/ssl/ -- --enable-static &&\
+    /usr/local/rvm/bin/rvm --default use 2.7.2
+
+ENV PATH="/usr/local/rvm/rubies/ruby-2.7.2/bin:${PATH}"
 
 
 ## Add RUBYLIB link for openstudio.rb

@@ -41,7 +41,8 @@ jobs:
       if: ${{ success() }} &&  
          github.ref == 'refs/heads/master' ||
          github.ref == 'refs/heads/develop' ||
-         github.ref == 'refs/heads/custom_branch_name'
+         github.ref == 'refs/heads/custom_branch_name'||
+         github.ref == 'refs/heads/2204-release'
       shell: bash 
       run: ./deploy_docker.sh
       env:

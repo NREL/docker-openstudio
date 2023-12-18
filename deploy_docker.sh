@@ -12,6 +12,10 @@ elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     # Retrieve the version number from rails
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 # Uncomment and set branch name for custom builds.
+elif [ "${GITHUB_REF}" == "refs/heads/2204-release" ]; then
+    # Retrieve the version number from rails
+    IMAGETAG="${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}:2204"
+# Uncomment and set branch name for custom builds.
 elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
     IMAGETAG="experimental"
 elif [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
@@ -33,7 +37,7 @@ if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
 
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
-    docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
+    # docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
     docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
 
     exit $exit_status
