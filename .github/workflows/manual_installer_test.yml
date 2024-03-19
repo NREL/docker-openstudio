@@ -1,4 +1,4 @@
-name: Build, test and deploy Docker image
+name: manual_update_develop
 
 on:
   workflow_dispatch:
