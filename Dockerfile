@@ -41,12 +41,16 @@ RUN apt-get update && apt-get install -y \
 # RUN apt-get install ca-certificates 
 # RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
 
-RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
-    && tar -xvzf ruby-2.7.2.tar.gz \
-    && cd ruby-2.7.2 \
+RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0.tar.gz \
+    && tar -xvzf ruby-3.3.0.tar.gz \
+    && cd ruby-3.3.0 \
     && ./configure \
     && make && make install 
 
+RUN ruby -version
+
+ENV PATH="${PATH}:/usr/local/bin"
+RUN ruby -version
 
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
