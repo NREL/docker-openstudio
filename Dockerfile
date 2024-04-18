@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
     # Cleanup
+RUN apt update && apt install -y libyaml-dev ruby-full 
 
 RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
@@ -47,12 +48,6 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0.tar.gz \
     && cd ruby-3.3.0 \
     && ./configure \
     && make && make install 
-
-
-RUN ruby -version
-
-ENV PATH="${PATH}:/usr/local/bin"
-RUN ruby -version
 
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
