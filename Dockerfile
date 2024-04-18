@@ -33,19 +33,21 @@ RUN apt-get update && apt-get install -y \
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
     # Cleanup
-    RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
+
+RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
 # RUN apt-get install ca-certificates 
 # RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
-
+RUN pwd
 RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0.tar.gz \
     && tar -xvzf ruby-3.3.0.tar.gz \
     && cd ruby-3.3.0 \
     && ./configure \
     && make && make install 
+
 
 RUN ruby -version
 
