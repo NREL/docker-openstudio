@@ -6,7 +6,7 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 ARG OPENSTUDIO_VERSION=3.8.0
 ARG OPENSTUDIO_VERSION_EXT="-beta"
 ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.8.0-beta%2Bd2f4b053d8-Ubuntu-20.04-x86_64.deb
-ENV OS_BUNDLER_VERSION=2.1.4
+ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
 ENV BUNDLE_WITHOUT=native_ext
 # Install gdebi, then download and install OpenStudio, then clean up.
