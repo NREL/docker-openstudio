@@ -3,11 +3,11 @@ FROM ubuntu:20.04 AS base
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
-ARG OPENSTUDIO_VERSION=3.7.0
-ARG OPENSTUDIO_VERSION_EXT=""
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.deb
-ENV OS_BUNDLER_VERSION=2.1.4
-ENV RUBY_VERSION=2.7.2
+ARG OPENSTUDIO_VERSION=3.8.0
+ARG OPENSTUDIO_VERSION_EXT="-beta"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.8.0-beta%2B276859dd1e-Ubuntu-20.04-x86_64.deb
+ENV OS_BUNDLER_VERSION=2.4.10
+ENV RUBY_VERSION=3.2.2
 ENV BUNDLE_WITHOUT=native_ext
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -33,20 +33,21 @@ RUN apt-get update && apt-get install -y \
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
     && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
     # Cleanup
-    RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
+RUN apt update && apt install -y libyaml-dev ruby-full 
+
+RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
 # RUN apt-get install ca-certificates 
 # RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
-
-RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
-    && tar -xvzf ruby-2.7.2.tar.gz \
-    && cd ruby-2.7.2 \
+RUN pwd
+RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
+    && tar -xvzf ruby-3.2.2.tar.gz \
+    && cd ruby-3.2.2 \
     && ./configure \
     && make && make install 
-
 
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
