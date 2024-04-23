@@ -31,15 +31,14 @@ RUN apt-get update && apt-get install -y \
     && OPENSTUDIO_DOWNLOAD_FILENAME=$(ls *.deb) \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
-    && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME 
+    && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
     # Cleanup
-RUN apt update && apt install -y libyaml-dev ruby-full 
-
-RUN rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
+    && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
+RUN apt update && apt install -y libyaml-dev ruby-full 
 # RUN apt-get install ca-certificates 
 # RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
 RUN pwd
@@ -49,6 +48,7 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
     && ./configure \
     && make && make install 
 
+RUN rm -rf ruby*
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}/EnergyPlus/energyplus
