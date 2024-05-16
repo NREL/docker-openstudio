@@ -4,9 +4,8 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.8.0
-ARG OPENSTUDIO_VERSION_EXT="-beta"
-ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.8.0-beta%2B276859dd1e-Ubuntu-20.04-x86_64.deb
-
+ARG OPENSTUDIO_VERSION_EXT="-rc3"
+ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.8.0-rc3%2Bd8eac889d0-Ubuntu-20.04-x86_64.deb
 ENV RC_RELEASE=TRUE
 ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
@@ -42,7 +41,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt update && apt install -y libyaml-dev ruby-full 
 # RUN apt-get install ca-certificates 
-# RUN curl -k -SLO https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz \
 RUN pwd
 RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
     && tar -xvzf ruby-3.2.2.tar.gz \
