@@ -10,9 +10,9 @@ on: [push, pull_request]
 
 env:
   USE_TESTING_TIMEOUTS: "true"
-  OPENSTUDIO_VERSION: 3.7.0
-  OPENSTUDIO_SHA: c0cbe73b51
-  OPENSTUDIO_VERSION_EXT: "-rc2"
+  OPENSTUDIO_VERSION: 3.8.0
+  OPENSTUDIO_SHA: f953b6fcaf
+  OPENSTUDIO_VERSION_EXT: ""
 
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
     - name: test and build
       shell: bash 
       run: |
-          docker build --target base -t openstudio:latest \
+          docker build -t openstudio:latest \
           --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
           --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA \
           --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT \

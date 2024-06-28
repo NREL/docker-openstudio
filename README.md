@@ -1,6 +1,6 @@
 # OpenStudio
 
-[![Build Status](https://travis-ci.org/NREL/docker-openstudio.svg?branch=master)](https://travis-ci.org/NREL/docker-openstudio)
+[![openstudio-docker](https://github.com/NREL/docker-openstudio/actions/workflows/docker-openstudio.yml/badge.svg)](https://github.com/NREL/docker-openstudio/actions/workflows/docker-openstudio.yml)
 
 This repo provides a container for OpenStudio as well as several dependencies, including Ruby 2.x, Bundler, 
 build-essentials and various development libraries for gem support.
@@ -28,7 +28,7 @@ These images are automatically built in TravisCI. To trigger TravisCI for a new 
      - OPENSTUDIO_VERSION: 2.6.0
      - OPENSTUDIO_SHA: e3cb91f98a
     ```
-* Push changes to feature branch, make and merge a pull-request to develop
+* Push changes to the feature branch, make and merge a pull request to develop
 * Wait for CI to finish and verify new develop image is available on [docker hub](https://hub.docker.com/r/nrel/openstudio/tags/).
 * Test locally (if needed)
 
@@ -42,8 +42,8 @@ These images are automatically built in TravisCI. To trigger TravisCI for a new 
 
 ### Build Locally
   
-Begin by installing the [docker tool-kit](https://docs.docker.com/engine/installation/) version 17.03.1 or later, as 
-described in the linked documentation. Once the tool-kit is installed and activated, run the command below to build the base image with OpenStudio 2.6.1.
+Begin by installing the [docker toolkit](https://docs.docker.com/engine/installation/) version 17.03.1 or later, as 
+described in the linked documentation. Once the toolkit is installed and activated, run the command below to build the base image with OpenStudio 2.6.1.
 
 ```
 docker build --target base -t openstudio-local --build-arg OPENSTUDIO_VERSION=2.6.1 --build-arg OPENSTUDIO_SHA=ab0dddde0b .
