@@ -14,6 +14,9 @@ env:
   OPENSTUDIO_SHA: f953b6fcaf
   OPENSTUDIO_VERSION_EXT: ""
 
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   docker:
@@ -48,6 +51,14 @@ jobs:
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
+  apptainer:
+    runs-on: ubuntu-20.04
+    steps: 
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
     - name: install apptainer
       shell: bash
       run: |
@@ -66,3 +77,18 @@ jobs:
       with:
         name: apptainer-image
         path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
+  
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        role-to-assume: arn:aws:iam::471211731895:role/OpenStudioGitHubActionsRole
+        role-session-name: GitHubActions
+
+    - name: Upload artifacts to AWS S3
+      uses: usualdesigner/s3-artifact-upload@main
+      with:
+        bucket-name: openstudio-builds
+        prefix: ${{env.OPENSTUDIO_VERSION}}
+        file: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif 
+      
