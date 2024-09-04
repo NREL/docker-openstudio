@@ -14,6 +14,9 @@ env:
   OPENSTUDIO_SHA: f953b6fcaf
   OPENSTUDIO_VERSION_EXT: ""
 
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   docker:
@@ -48,15 +51,44 @@ jobs:
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
-    - name: deploy singularity
-      if: ${{ success() }} &&  
-        github.ref == 'refs/heads/master' || 
-        github.ref == 'refs/heads/develop' || 
-        github.ref == 'refs/heads/custom_brach_name' 
-      shell: bash 
-      run: ./singularity/deploy_singularity.sh
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  apptainer:
+    runs-on: ubuntu-20.04
+    steps: 
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
 
+    - name: install apptainer
+      shell: bash
+      run: |
+        sudo add-apt-repository -y ppa:apptainer/ppa
+        sudo apt update
+        sudo apt install -y apptainer
+
+    - name: build apptainer
+      shell: bash
+      run: |
+        apptainer build \
+        OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
+        docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+    
+    - uses: actions/upload-artifact@v3
+      with:
+        name: apptainer-image
+        path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
+  
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        role-to-assume: arn:aws:iam::471211731895:role/OpenStudioGitHubActionsRole
+        role-session-name: GitHubActions
+
+    - name: Upload artifacts to AWS S3
+      uses: usualdesigner/s3-artifact-upload@main
+      with:
+        bucket-name: openstudio-builds
+        prefix: ${{env.OPENSTUDIO_VERSION}}
+        file: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif 
+      
