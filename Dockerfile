@@ -71,22 +71,22 @@ RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/openstudio-gems.gemspec /var/oscli/\
     && ln -s ${OPENSTUDIO_FOLDER} /usr/local/openstudio-${OPENSTUDIO_VERSION}
 
-# ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
-# ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
+ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
-# RUN rm -rf ruby*
-# ## Add RUBYLIB link for openstudio.rb
-# ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
-# ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+RUN rm -rf ruby*
+## Add RUBYLIB link for openstudio.rb
+ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
+ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
-# WORKDIR /var/oscli
-# RUN bundle -v
-# RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
+WORKDIR /var/oscli
+RUN bundle -v
+RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
 
-# # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
-# VOLUME /var/simdata/openstudio
-# WORKDIR /var/simdata/openstudio
-# RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
+# Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
+VOLUME /var/simdata/openstudio
+WORKDIR /var/simdata/openstudio
+RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
 
 # May need this for syscalls that do not have ext in path
 
