@@ -1,11 +1,11 @@
-FROM ubuntu:20.04 AS base
+FROM ubuntu:22.04 AS base
 
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
-ARG OPENSTUDIO_VERSION=3.8.0
-ARG OPENSTUDIO_VERSION_EXT=""
-ARG OPENSTUDIO_DOWNLOAD_URL=""
+ARG OPENSTUDIO_VERSION=3.9.0
+ARG OPENSTUDIO_VERSION_EXT="alpha"
+ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.9.0-alpha%2B023c513504-Ubuntu-22.04-x86_64.deb"
 ENV RC_RELEASE=TRUE
 ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
@@ -51,12 +51,15 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
 
 ## if the openstudio-${OPENSTUDIO_VERSION} folder existed, set it as the OPENSTUDIO 
 ## folder, otherwise set the openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT} folder
+
+#the folder will be Openstudio-3.9.0 or something like Openstudio-3.9.0-alpha
+
 RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
     echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}"; \
     OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}; \
     else \
-    echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}"; \
-    OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}; \
+    echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}-${OPENSTUDIO_VERSION_EXT}"; \
+    OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}-${OPENSTUDIO_VERSION_EXT}; \
     fi \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && rm -rf ruby* \
@@ -68,22 +71,22 @@ RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/openstudio-gems.gemspec /var/oscli/\
     && ln -s ${OPENSTUDIO_FOLDER} /usr/local/openstudio-${OPENSTUDIO_VERSION}
 
-ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
-ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+# ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
+# ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
-RUN rm -rf ruby*
-## Add RUBYLIB link for openstudio.rb
-ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
-ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+# RUN rm -rf ruby*
+# ## Add RUBYLIB link for openstudio.rb
+# ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
+# ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 
-WORKDIR /var/oscli
-RUN bundle -v
-RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
+# WORKDIR /var/oscli
+# RUN bundle -v
+# RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jobs=4 --retry=3
 
-# Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
-VOLUME /var/simdata/openstudio
-WORKDIR /var/simdata/openstudio
-RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
+# # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
+# VOLUME /var/simdata/openstudio
+# WORKDIR /var/simdata/openstudio
+# RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
 
 # May need this for syscalls that do not have ext in path
 
