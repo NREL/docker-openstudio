@@ -64,6 +64,7 @@ RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && rm -rf ruby* \
     && gem install bundler -v $OS_BUNDLER_VERSION \
+    && gem install zip \
     && mkdir /var/oscli \
     && ls /usr/local \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/Gemfile /var/oscli/ \
