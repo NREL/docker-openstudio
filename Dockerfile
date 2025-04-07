@@ -87,7 +87,7 @@ RUN bundle _${OS_BUNDLER_VERSION}_ install --path=gems --without=native_ext --jo
 # Configure the bootdir & confirm that openstudio is able to load the bundled gem set in /var/gemdata
 VOLUME /var/simdata/openstudio
 WORKDIR /var/simdata/openstudio
-RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext  openstudio_version
+RUN openstudio --loglevel Trace --bundle /var/oscli/Gemfile --bundle_path /var/oscli/gems --bundle_without native_ext gem_list
 
 # May need this for syscalls that do not have ext in path
 
