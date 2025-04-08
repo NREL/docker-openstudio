@@ -82,7 +82,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-region: us-west-2
+        aws-region: us-east-1
         role-to-assume: arn:aws:iam::471211731895:role/OpenStudioGitHubActionsRole
 
     - name: Upload artifacts to AWS S3
