@@ -13,6 +13,7 @@ env:
   OPENSTUDIO_VERSION: 3.9.0
   OPENSTUDIO_SHA: c77fbb9569
   OPENSTUDIO_VERSION_EXT: ""
+  DOWNLOAD_PREFIX: ""
 
 permissions:
   contents: read
@@ -20,15 +21,15 @@ permissions:
 
 jobs:
   docker:
-    runs-on: ubuntu-24.04
-    steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
     - name: test and build
-      shell: bash 
+      shell: bash
       run: |
           docker build -t openstudio:latest \
           --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
@@ -41,21 +42,18 @@ jobs:
           docker run -v $(pwd)/test:/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
     - name: deploy docker
-      if: ${{ success() }} &&  
-         github.ref == 'refs/heads/master' ||
-         github.ref == 'refs/heads/develop' ||
-         github.ref == 'refs/heads/custom_branch_name'
-      shell: bash 
+      if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') }}
+      shell: bash
       run: ./deploy_docker.sh
       env:
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
   apptainer:
-    runs-on: ubuntu-24.04
-    steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
@@ -69,15 +67,38 @@ jobs:
     - name: build apptainer
       shell: bash
       run: |
+        # Define the output filename to ensure consistency across the workflow
+        APPTAINER_FILENAME="OpenStudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}.${OPENSTUDIO_SHA}-Apptainer.sif"
+
+        # Export the filename as a GitHub Actions environment variable for use in subsequent steps
+        echo "APPTAINER_FILENAME=${APPTAINER_FILENAME}" >> $GITHUB_ENV
+
+        echo "Building Apptainer image: ${APPTAINER_FILENAME}"
+
+        # Build the Apptainer image from the Docker container
         apptainer build \
-        OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
-        docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
-    
+          "${APPTAINER_FILENAME}" \
+          "docker://nrel/openstudio:${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}" || {
+            echo "Error: Apptainer build failed"
+            exit 1
+          }
+
+        # Verify the file was created successfully
+        if [ -f "${APPTAINER_FILENAME}" ]; then
+          echo "Successfully built ${APPTAINER_FILENAME}"
+          # Get file size for logging
+          FILE_SIZE=$(du -h "${APPTAINER_FILENAME}" | cut -f1)
+          echo "File size: ${FILE_SIZE}"
+        else
+          echo "Error: ${APPTAINER_FILENAME} was not created"
+          exit 1
+        fi
+
     - uses: actions/upload-artifact@v3
       with:
         name: apptainer-image
-        path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
-  
+        path: ${{ env.APPTAINER_FILENAME }}
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
@@ -86,9 +107,8 @@ jobs:
         role-session-name: GitHubActions
 
     - name: Upload artifacts to AWS S3
-      uses: usualdesigner/s3-artifact-upload@main
+      uses: usualdesigner/s3-artifact-upload@v1
       with:
         bucket-name: openstudio-builds
-        prefix: ${{env.OPENSTUDIO_VERSION}}
-        file: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif 
-      
+        prefix: ${{ env.OPENSTUDIO_VERSION }}
+        file: ${{ env.APPTAINER_FILENAME }}

@@ -1,17 +1,18 @@
-FROM ubuntu:24.04 AS base
+FROM ubuntu:22.04 AS base
 
 # Update to use LABEL instead of deprecated MAINTAINER
 LABEL maintainer="nicholas.long@nrel.gov"
 
 # Set the version of OpenStudio when building the container
 ARG OPENSTUDIO_VERSION=3.9.0
+ARG OPENSTUDIO_VERSION_EXT=""
 ARG OPENSTUDIO_SHA=c77fbb9569
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-${OPENSTUDIO_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-24.04-x86_64.deb
+ARG OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3.amazonaws.com/master/OpenStudio-${OPENSTUDIO_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-22.04-x86_64.deb
 
-ENV RC_RELEASE=TRUE \
-    OS_BUNDLER_VERSION=2.4.10 \
-    RUBY_VERSION=3.2.2 \
-    BUNDLE_WITHOUT=native_ext
+ENV RC_RELEASE=TRUE
+ENV OS_BUNDLER_VERSION=2.4.10
+ENV RUBY_VERSION=3.2.2
+ENV BUNDLE_WITHOUT=native_ext
 
 # Install gdebi, then download and install OpenStudio, then clean up.
 # gdebi handles the installation of OpenStudio's dependencies
@@ -33,16 +34,11 @@ RUN apt-get update && apt-get install -y \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
     && curl -SLO "${OPENSTUDIO_DOWNLOAD_URL}" \
     && OPENSTUDIO_DOWNLOAD_FILENAME=$(ls *.deb) \
-    && if [ ! -f "${OPENSTUDIO_DOWNLOAD_FILENAME}" ]; then \
-         echo "Failed to download OpenStudio package" >&2; \
-         exit 1; \
-       fi \
-    && if grep -q "<Code>AccessDenied</Code>" "${OPENSTUDIO_DOWNLOAD_FILENAME}"; then \
-         echo "Access denied when downloading OpenStudio package" >&2; \
-         exit 1; \
-       fi \
-    && gdebi -n "${OPENSTUDIO_DOWNLOAD_FILENAME}" \
-    && rm -f "${OPENSTUDIO_DOWNLOAD_FILENAME}" \
+    # Verify that the download was successful (not access denied XML from s3)
+    && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
+    && gdebi -n $OPENSTUDIO_DOWNLOAD_FILENAME \
+    # Cleanup
+    && rm -f $OPENSTUDIO_DOWNLOAD_FILENAME \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
