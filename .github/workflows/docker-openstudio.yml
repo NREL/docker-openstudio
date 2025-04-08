@@ -80,11 +80,10 @@ jobs:
         path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
   
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v3
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: us-west-2
         role-to-assume: arn:aws:iam::471211731895:role/OpenStudioGitHubActionsRole
-        role-session-name: GitHubActions
 
     - name: Upload artifacts to AWS S3
       uses: usualdesigner/s3-artifact-upload@main
