@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS base
+FROM ubuntu:24.04 AS base
 
 # Update to use LABEL instead of deprecated MAINTAINER
 LABEL maintainer="nicholas.long@nrel.gov"
@@ -6,7 +6,7 @@ LABEL maintainer="nicholas.long@nrel.gov"
 # Set the version of OpenStudio when building the container
 ARG OPENSTUDIO_VERSION=3.9.0
 ARG OPENSTUDIO_SHA=c77fbb9569
-ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-${OPENSTUDIO_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-22.04-x86_64.deb
+ARG OPENSTUDIO_DOWNLOAD_URL=https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-${OPENSTUDIO_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-24.04-x86_64.deb
 
 ENV RC_RELEASE=TRUE \
     OS_BUNDLER_VERSION=2.4.10 \
