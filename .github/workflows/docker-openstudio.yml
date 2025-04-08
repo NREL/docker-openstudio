@@ -107,7 +107,7 @@ jobs:
         role-session-name: GitHubActions
 
     - name: Upload artifacts to AWS S3
-      uses: usualdesigner/s3-artifact-upload@v1
+      uses: usualdesigner/s3-artifact-upload@main
       with:
         bucket-name: openstudio-builds
         prefix: ${{ env.OPENSTUDIO_VERSION }}
