@@ -71,8 +71,9 @@ jobs:
       run: |
         apptainer build \
         OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
-#        docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
         docker://nrel/openstudio:develop
+        #docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+        
     
     - uses: actions/upload-artifact@v4
       with:
