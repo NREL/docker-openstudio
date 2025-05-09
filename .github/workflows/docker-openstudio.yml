@@ -20,10 +20,10 @@ permissions:
 
 jobs:
   docker:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
@@ -52,10 +52,10 @@ jobs:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
   apptainer:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
@@ -73,7 +73,7 @@ jobs:
         OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
         docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
     
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: apptainer-image
         path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
