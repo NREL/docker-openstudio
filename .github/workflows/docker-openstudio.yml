@@ -10,9 +10,9 @@ on: [push, pull_request]
 
 env:
   USE_TESTING_TIMEOUTS: "true"
-  OPENSTUDIO_VERSION: 3.9.0
-  OPENSTUDIO_SHA: c77fbb9569
-  OPENSTUDIO_VERSION_EXT: ""
+  OPENSTUDIO_VERSION: 3.10.0
+  OPENSTUDIO_SHA: 2B83cec57525
+  OPENSTUDIO_VERSION_EXT: "-alpha"
 
 permissions:
   contents: read
@@ -20,10 +20,10 @@ permissions:
 
 jobs:
   docker:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
@@ -52,10 +52,10 @@ jobs:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
   apptainer:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps: 
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
 
@@ -71,9 +71,11 @@ jobs:
       run: |
         apptainer build \
         OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
-        docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+        docker://nrel/openstudio:develop
+        #docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+        
     
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: apptainer-image
         path: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif

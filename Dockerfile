@@ -3,9 +3,9 @@ FROM ubuntu:22.04 AS base
 MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
-ARG OPENSTUDIO_VERSION=3.9.0
-ARG OPENSTUDIO_VERSION_EXT=""
-ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/master/OpenStudio-3.9.0%2Bc77fbb9569-Ubuntu-22.04-x86_64.deb"
+ARG OPENSTUDIO_VERSION=3.10.0
+ARG OPENSTUDIO_VERSION_EXT="-alpha"
+ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.10.0-alpha%2B83cec57525-Ubuntu-22.04-x86_64.deb"
 ENV RC_RELEASE=TRUE
 ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
@@ -58,8 +58,8 @@ RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
     echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}"; \
     OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}; \
     else \
-    echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}-${OPENSTUDIO_VERSION_EXT}"; \
-    OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}-${OPENSTUDIO_VERSION_EXT}; \
+    echo "OpenStudio folder is /usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}"; \
+    OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}; \
     fi \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && rm -rf ruby* \
