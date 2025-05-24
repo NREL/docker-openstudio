@@ -12,7 +12,7 @@ elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     # Retrieve the version number from rails
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 # Uncomment and set branch name for custom builds.
-elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
+elif [ "${GITHUB_REF}" == "refs/heads/3.10-alpha" ]; then
     IMAGETAG="experimental"
 elif [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
     IMAGETAG="develop"
