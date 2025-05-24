@@ -13,7 +13,7 @@ elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
     IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
 # Uncomment and set branch name for custom builds.
 elif [ "${GITHUB_REF}" == "refs/heads/3.10-alpha" ]; then
-    IMAGETAG="experimental"
+    IMAGETAG="3.10-alpha"
 elif [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
     IMAGETAG="develop"
 fi
