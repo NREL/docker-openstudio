@@ -4,8 +4,9 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.10.0
-ARG OPENSTUDIO_VERSION_EXT="-alpha"
-ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.10.0-alpha%2B9a1c02488e-Ubuntu-22.04-x86_64.deb"
+ARG OPENSTUDIO_VERSION_EXT="-rc1"
+# ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.10.0-alpha%2B9a1c02488e-Ubuntu-22.04-x86_64.deb"
+ARG OPENSTUDIO_DOWNLOAD_URL="https://github.com/NREL/OpenStudio/releases/download/v3.10.0-rc1/OpenStudio-3.10.0-rc1+106e75c73c-Ubuntu-24.04-x86_64.deb"
 ENV RC_RELEASE=TRUE
 ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
