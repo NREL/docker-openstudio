@@ -54,12 +54,12 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
 
 #the folder will be Openstudio-3.9.0 or something like Openstudio-3.9.0-alpha
 
-RUN if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
-        OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}; \
+RUN OPENSTUDIO_FOLDER=$(if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
+        echo "/usr/local/openstudio-${OPENSTUDIO_VERSION}"; \
     else \
-        OPENSTUDIO_FOLDER=/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}; \
-    fi; \
-    echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
+        echo "/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}"; \
+    fi) \
+    && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && rm -rf ruby* \
     && gem install bundler -v $OS_BUNDLER_VERSION \
     && gem install zip \
