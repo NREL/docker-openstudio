@@ -14,9 +14,9 @@ concurrency:
 
 env:
   USE_TESTING_TIMEOUTS: "true"
-  OPENSTUDIO_VERSION: 3.11.0
+  OPENSTUDIO_VERSION: 3.10.0
   OPENSTUDIO_SHA: c7f13ad
-  OPENSTUDIO_VERSION_EXT: "-alpha"
+  OPENSTUDIO_VERSION_EXT: ""
 
 permissions:
   contents: read
