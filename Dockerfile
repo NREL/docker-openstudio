@@ -49,16 +49,11 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
     && ./configure \
     && make && make install 
 
-## if the openstudio-${OPENSTUDIO_VERSION} folder existed, set it as the OPENSTUDIO 
-## folder, otherwise set the openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT} folder
+## Detect the OpenStudio installation folder
+## The folder will be openstudio-3.9.0 or something like openstudio-3.9.0-alpha
+## We search for any folder matching the version pattern to handle various naming conventions
 
-#the folder will be Openstudio-3.9.0 or something like Openstudio-3.9.0-alpha
-
-RUN OPENSTUDIO_FOLDER=$(if [ -d "/usr/local/openstudio-${OPENSTUDIO_VERSION}" ]; then \
-        echo "/usr/local/openstudio-${OPENSTUDIO_VERSION}"; \
-    else \
-        echo "/usr/local/openstudio-${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}"; \
-    fi) \
+RUN OPENSTUDIO_FOLDER=$(find /usr/local -maxdepth 1 -type d -name "openstudio-${OPENSTUDIO_VERSION}*" | head -1) \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && rm -rf ruby* \
     && gem install bundler -v $OS_BUNDLER_VERSION \
