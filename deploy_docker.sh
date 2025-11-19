@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-echo "image would be tagged as $IMAGETAG if this were master branch"
+echo "default image tag would be $IMAGETAG"
 IMAGETAG=skip
+DOCKER_REPO=${DOCKER_REPO:-nrel/openstudio}
 
 # Check branch name for correct tagging
 if [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
@@ -29,12 +30,21 @@ fi
 
 # GITHUB_BASE_REF is only set on Pull Request events. Do not build those
 if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
-    echo "Tagging image as $IMAGETAG"
+    echo "Tagging image as $IMAGETAG and pushing to ${DOCKER_REPO}"
 
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-    docker tag openstudio:latest nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
-    docker tag openstudio:latest nrel/openstudio:latest; (( exit_status = exit_status || $? ))
-    docker push nrel/openstudio:$IMAGETAG; (( exit_status = exit_status || $? ))
+    # Tag versioned image
+    docker tag openstudio:latest ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
+    # Always update latest
+    docker tag openstudio:latest ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
+
+    # Push versioned tag
+    docker push ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
+    # If on develop branch, also push the develop tag pointing to this image
+    if [ "${IMAGETAG}" == "develop" ] || [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
+        docker tag openstudio:latest ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
+        docker push ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
+    fi
 
     exit $exit_status
 else

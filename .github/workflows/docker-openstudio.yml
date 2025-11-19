@@ -15,8 +15,9 @@ concurrency:
 env:
   USE_TESTING_TIMEOUTS: "true"
   OPENSTUDIO_VERSION: 3.11.0
-  OPENSTUDIO_SHA: c7f13ad
-  OPENSTUDIO_VERSION_EXT: "alpha"
+  OPENSTUDIO_SHA: c7f13ad615
+  OPENSTUDIO_VERSION_EXT: "-alpha"
+  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-alpha%2Bc7f13ad615-Ubuntu-22.04-x86_64.deb"
 
 permissions:
   contents: read

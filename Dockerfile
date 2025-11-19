@@ -5,7 +5,10 @@ MAINTAINER Nicholas Long nicholas.long@nrel.gov
 # Set the version of OpenStudio when building the container. For example `docker build --build-arg
 ARG OPENSTUDIO_VERSION=3.10.0
 ARG OPENSTUDIO_VERSION_EXT="-alpha"
-ARG OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-3.10.0-alpha%2B83cec57525-Ubuntu-22.04-x86_64.deb"
+ARG OPENSTUDIO_SHA=""
+# If OPENSTUDIO_DOWNLOAD_URL is not provided, construct a reasonable default using the
+# OpenStudio CI S3 pattern. Users can override by passing --build-arg OPENSTUDIO_DOWNLOAD_URL=...
+ARG OPENSTUDIO_DOWNLOAD_URL=""
 ENV RC_RELEASE=TRUE
 ENV OS_BUNDLER_VERSION=2.4.10
 ENV RUBY_VERSION=3.2.2
@@ -17,19 +20,27 @@ ENV BUNDLE_WITHOUT=native_ext
 # install locales and set to en_US.UTF-8. This is needed for running the CLI on some machines
 # such as singularity.
 RUN apt-get update && apt-get install -y \
-        curl \
-        gdebi-core \
-        libsqlite3-dev \
-        libssl-dev \ 
-        libffi-dev \ 
-        build-essential \
-        zlib1g-dev \
-        vim \ 
-        git \
-        locales \
-        sudo \
-    && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
-    && curl -SLO $OPENSTUDIO_DOWNLOAD_URL \
+                curl \
+                gdebi-core \
+                libsqlite3-dev \
+                libssl-dev \
+                libffi-dev \
+                build-essential \
+                zlib1g-dev \
+                vim \
+                git \
+                locales \
+                sudo \
+        && if [ -z "${OPENSTUDIO_DOWNLOAD_URL}" ]; then \
+                 ESC_VERSION=$(echo "${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}" | sed 's/+/%2B/g'); \
+                 if [ -n "${OPENSTUDIO_SHA}" ]; then \
+                     OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-22.04-x86_64.deb"; \
+                 else \
+                     OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}-Ubuntu-22.04-x86_64.deb"; \
+                 fi; \
+             fi \
+        && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
+        && curl -SLO "$OPENSTUDIO_DOWNLOAD_URL" \
     && OPENSTUDIO_DOWNLOAD_FILENAME=$(ls *.deb) \
     # Verify that the download was successful (not access denied XML from s3)
     && grep -v -q "<Code>AccessDenied</Code>" ${OPENSTUDIO_DOWNLOAD_FILENAME} \
