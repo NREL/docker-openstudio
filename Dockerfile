@@ -53,13 +53,22 @@ RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
 ## The folder will be openstudio-3.9.0 or something like openstudio-3.9.0-alpha
 ## We search for any folder matching the version pattern to handle various naming conventions
 
-RUN OPENSTUDIO_FOLDER=$(find /usr/local -maxdepth 1 -type d -name "openstudio-${OPENSTUDIO_VERSION}*" | head -1) \
+RUN echo "Searching for OpenStudio installation..." \
+    && ls -la /usr/local \
+    && ls -la /usr \
+    && OPENSTUDIO_FOLDER=$(find /usr -maxdepth 2 -type d -name "openstudio-${OPENSTUDIO_VERSION}*" 2>/dev/null | head -1) \
+    && if [ -z "$OPENSTUDIO_FOLDER" ]; then \
+        echo "ERROR: OpenStudio folder not found matching pattern openstudio-${OPENSTUDIO_VERSION}*"; \
+        echo "Searching for any openstudio folder..."; \
+        find /usr -maxdepth 2 -type d -name "openstudio-*" 2>/dev/null; \
+        exit 1; \
+    fi \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
+    && ls -la ${OPENSTUDIO_FOLDER} \
     && rm -rf ruby* \
     && gem install bundler -v $OS_BUNDLER_VERSION \
     && gem install zip \
     && mkdir /var/oscli \
-    && ls /usr/local \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/Gemfile /var/oscli/ \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/Gemfile.lock /var/oscli/ \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/openstudio-gems.gemspec /var/oscli/ \
