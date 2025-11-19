@@ -98,4 +98,3 @@ jobs:
           bucket-name: openstudio-builds
           prefix: ${{ env.OPENSTUDIO_VERSION }}
           file: OpenStudio-${{ env.OPENSTUDIO_VERSION }}${{ env.OPENSTUDIO_VERSION_EXT }}.${{ env.OPENSTUDIO_SHA }}-Apptainer.sif
-      
