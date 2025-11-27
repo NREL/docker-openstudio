@@ -35,8 +35,15 @@ if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     # Tag versioned image
     docker tag openstudio:latest ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
-    # Always update latest
-    docker tag openstudio:latest ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
+
+    # Only update and push 'latest' if this is a stable release (no extension)
+    if [ -z "${OPENSTUDIO_VERSION_EXT}" ]; then
+        echo "Stable release detected. Updating and pushing '${DOCKER_REPO}:latest'"
+        docker tag openstudio:latest ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
+        docker push ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
+    else
+        echo "Pre-release detected (extension: '${OPENSTUDIO_VERSION_EXT}'). Skipping 'latest' tag update."
+    fi
 
     # Push versioned tag
     docker push ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
