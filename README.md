@@ -85,3 +85,31 @@ If gem dependencies are required as part of the CLI outside of those
 # Issues
 
 Please submit issues on the project's [Github](https://github.com/nrel/docker-openstudio) page. 
+
+## Building and publishing specific OpenStudio versions
+
+ - **Local build for a specific version (example: 3.11.0-alpha):**
+
+```bash
+docker build -t openstudio:latest \
+    --build-arg OPENSTUDIO_VERSION=3.11.0 \
+    --build-arg OPENSTUDIO_VERSION_EXT="-alpha" \
+    --build-arg OPENSTUDIO_SHA=<sha-or-empty> .
+```
+
+- **Tag and push locally (optional):**
+
+```bash
+docker tag openstudio:latest yourrepo/openstudio:3.11.0-alpha
+docker push yourrepo/openstudio:3.11.0-alpha
+```
+
+- **Trigger GitHub Actions build to publish to Docker Hub:**
+
+    - Update `.github/workflows/docker-openstudio.yml` env values for `OPENSTUDIO_VERSION`, `OPENSTUDIO_VERSION_EXT`, and `OPENSTUDIO_SHA` on a branch.
+    - Create a pull request to `develop` and merge; the workflow will build and, if on `develop`, push the image to Docker Hub as the `develop` tag (and `latest`).
+
+Notes:
+
+- The `deploy_docker.sh` script tags images pushed to Docker Hub. You can override `DOCKER_REPO` for testing private repos.
+- If `OPENSTUDIO_SHA` is empty, the downloader will attempt to use a generic S3 URL without the SHA.
