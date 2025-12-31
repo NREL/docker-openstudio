@@ -87,6 +87,7 @@ RUN echo "Searching for OpenStudio installation..." \
 
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
+ENV LD_LIBRARY_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/lib:$LD_LIBRARY_PATH
 
 RUN rm -rf ruby*
 ## Add RUBYLIB link for openstudio.rb
