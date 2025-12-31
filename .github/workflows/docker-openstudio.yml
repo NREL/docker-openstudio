@@ -17,7 +17,7 @@ env:
   OPENSTUDIO_VERSION: 3.11.0
   OPENSTUDIO_SHA: dee62bf9dd
   OPENSTUDIO_VERSION_EXT: "-rc1"
-  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-rc1%2Bdee62bf9dd-Ubuntu-22.04-x86_64.deb"
+  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-rc1%2Bdee62bf9dd-Ubuntu-24.04-x86_64.deb"
 
 permissions:
   contents: read
