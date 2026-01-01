@@ -85,6 +85,7 @@ RUN echo "Searching for OpenStudio installation..." \
     && cp ${OPENSTUDIO_FOLDER}/Ruby/openstudio-gems.gemspec /var/oscli/ \
     && sed -i 's/, :github => .*//' /var/oscli/Gemfile \
     && sed -i 's/gem .rubocop., .*/gem "rubocop", "= 1.50.0"/' /var/oscli/Gemfile \
+    && sed -i 's/gem .json., .*/gem "json", "~> 2.3"/' /var/oscli/Gemfile \
     && ln -s ${OPENSTUDIO_FOLDER} /usr/local/openstudio-${OPENSTUDIO_VERSION}
 
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
