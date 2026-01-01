@@ -51,14 +51,15 @@ RUN apt-get update && apt-get install -y \
     && locale-gen en_US en_US.UTF-8 \
     && dpkg-reconfigure locales
 
-RUN apt update && apt install -y libyaml-dev ruby-full 
-# RUN apt-get install ca-certificates 
-RUN pwd
-RUN curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
+RUN apt-get update && apt-get install -y libyaml-dev ruby-full \
+    && curl -SLO -k https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.gz \
     && tar -xvzf ruby-3.2.2.tar.gz \
     && cd ruby-3.2.2 \
     && ./configure \
-    && make && make install 
+    && make && make install \
+    && cd .. \
+    && rm -rf ruby-3.2.2 ruby-3.2.2.tar.gz \
+    && rm -rf /var/lib/apt/lists/* 
 
 ## Detect the OpenStudio installation folder
 ## The folder will be openstudio-3.9.0 or something like openstudio-3.9.0-alpha
@@ -76,7 +77,6 @@ RUN echo "Searching for OpenStudio installation..." \
     fi \
     && echo "OpenStudio folder is ${OPENSTUDIO_FOLDER}" \
     && ls -la ${OPENSTUDIO_FOLDER} \
-    && rm -rf ruby* \
     && gem install bundler -v $OS_BUNDLER_VERSION \
     && gem install zip \
     && mkdir /var/oscli \
@@ -89,7 +89,6 @@ ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
 ENV LD_LIBRARY_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/lib:$LD_LIBRARY_PATH
 
-RUN rm -rf ruby*
 ## Add RUBYLIB link for openstudio.rb
 ENV RUBYLIB=/usr/local/openstudio-${OPENSTUDIO_VERSION}/Ruby
 ENV ENERGYPLUS_EXE_PATH=/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus/energyplus
