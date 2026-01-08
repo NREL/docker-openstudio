@@ -14,7 +14,7 @@ on:
         description: 'OS version extension (e.g. -alpha). Must match .deb installer'
         required: false
       docker_image_tag:
-        description: 'Docker image tag. Tag name will be prefixed with "dev-" unless tag = "develop"'
+        description: 'Docker image tag. If tag is "develop", it will be "develop". If tag matches a version pattern (e.g. 3.11.0-rc3), it will be used as-is. Otherwise, tag will be prefixed with "dev-".'
         required: true
 
 env:

@@ -23,6 +23,8 @@ fi
 if [ ! -z "${DOCKER_MANUAL_IMAGE_TAG}" ]; then
   if [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
     IMAGETAG="develop"
+  elif [[ "${DOCKER_MANUAL_IMAGE_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+    IMAGETAG="${DOCKER_MANUAL_IMAGE_TAG}"
   else
     IMAGETAG="dev-${DOCKER_MANUAL_IMAGE_TAG}"
   fi
