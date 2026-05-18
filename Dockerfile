@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS base
+FROM ubuntu:24.04 AS base
 
 LABEL maintainer="Nicholas Long nicholas.long@nrel.gov"
 
@@ -34,9 +34,9 @@ RUN apt-get update && apt-get install -y \
     && if [ -z "${OPENSTUDIO_DOWNLOAD_URL}" ]; then \
     ESC_VERSION=$(echo "${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}" | sed 's/+/%2B/g'); \
     if [ -n "${OPENSTUDIO_SHA}" ]; then \
-    OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-22.04-x86_64.deb"; \
+    OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${OPENSTUDIO_SHA}-Ubuntu-24.04-x86_64.deb"; \
     else \
-    OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}-Ubuntu-22.04-x86_64.deb"; \
+    OPENSTUDIO_DOWNLOAD_URL="https://openstudio-ci-builds.s3.amazonaws.com/develop/OpenStudio-${ESC_VERSION}-Ubuntu-24.04-x86_64.deb"; \
     fi; \
     fi \
     && echo "OpenStudio Package Download URL is ${OPENSTUDIO_DOWNLOAD_URL}" \
