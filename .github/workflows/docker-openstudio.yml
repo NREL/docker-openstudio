@@ -1,6 +1,27 @@
 name: openstudio-docker
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      openstudio_version:
+        description: 'OpenStudio version (e.g. 3.10.0)'
+        required: true
+        default: '3.11.0'
+      openstudio_sha:
+        description: 'OpenStudio git SHA'
+        required: true
+        default: 'dee62bf9dd'
+      openstudio_version_ext:
+        description: 'Version extension (e.g. -rc1). Leave empty for a final release.'
+        required: false
+        default: '-rc1'
+      apptainer_only:
+        description: 'Skip docker build/test and only build the .sif from an existing Docker Hub image'
+        required: false
+        default: 'false'
+        type: boolean
 
 # example of how to restrict to one branch and push event
 #on:
@@ -31,7 +52,16 @@ jobs:
         with:
           python-version: '3.12.x'
 
+      - name: Resolve version inputs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          echo "OPENSTUDIO_VERSION=${{ github.event.inputs.openstudio_version }}" >> $GITHUB_ENV
+          echo "OPENSTUDIO_SHA=${{ github.event.inputs.openstudio_sha }}" >> $GITHUB_ENV
+          echo "OPENSTUDIO_VERSION_EXT=${{ github.event.inputs.openstudio_version_ext }}" >> $GITHUB_ENV
+
       - name: test and build
+        if: ${{ github.event.inputs.apptainer_only != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -57,7 +87,7 @@ jobs:
   apptainer:
     runs-on: ubuntu-24.04
     needs: docker
-    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
     permissions:
       contents: read
       id-token: write
@@ -66,6 +96,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.x'
+
+      - name: Resolve version inputs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          echo "OPENSTUDIO_VERSION=${{ github.event.inputs.openstudio_version }}" >> $GITHUB_ENV
+          echo "OPENSTUDIO_SHA=${{ github.event.inputs.openstudio_sha }}" >> $GITHUB_ENV
+          echo "OPENSTUDIO_VERSION_EXT=${{ github.event.inputs.openstudio_version_ext }}" >> $GITHUB_ENV
 
       - name: install apptainer
         shell: bash
