@@ -105,7 +105,7 @@ jobs:
           docker run -v "$(pwd)/test":/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
       - name: deploy docker
-        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') }}
+        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') && !(github.event_name == 'workflow_dispatch' && inputs.apptainer_only) }}
         shell: bash
         run: |
           set -euo pipefail
@@ -113,6 +113,7 @@ jobs:
         env:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_MANUAL_IMAGE_TAG: ${{ inputs.docker_manual_image_tag }}
 
   apptainer:
     runs-on: ubuntu-24.04
