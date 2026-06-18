@@ -1,6 +1,30 @@
 name: openstudio-docker
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      openstudio_version:
+        description: 'OpenStudio version (e.g. 3.10.0)'
+        required: true
+        default: '3.11.0'
+      openstudio_sha:
+        description: 'OpenStudio git SHA'
+        required: true
+        default: 'dee62bf9dd'
+      openstudio_version_ext:
+        description: 'Version extension (e.g. -rc1). Leave blank for a final release. Default: -rc1'
+        required: false
+        default: ''
+      apptainer_only:
+        description: 'Skip docker build/test and only build the .sif from an existing Docker Hub image'
+        required: false
+        default: 'false'
+        type: boolean
 
 # example of how to restrict to one branch and push event
 #on:
@@ -23,8 +47,43 @@ permissions:
   contents: read
 
 jobs:
-  docker:
+  setup:
     runs-on: ubuntu-24.04
+    outputs:
+      openstudio_version:     ${{ steps.resolve.outputs.openstudio_version }}
+      openstudio_sha:         ${{ steps.resolve.outputs.openstudio_sha }}
+      openstudio_version_ext: ${{ steps.resolve.outputs.openstudio_version_ext }}
+    steps:
+      - name: Resolve version
+        id: resolve
+        shell: bash
+        run: |
+          # Start from workflow-level defaults
+          VERSION="${OPENSTUDIO_VERSION}"
+          SHA="${OPENSTUDIO_SHA}"
+          EXT="${OPENSTUDIO_VERSION_EXT}"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Override version/sha if provided (they are required inputs so always non-empty)
+            VERSION="${{ inputs.openstudio_version }}"
+            SHA="${{ inputs.openstudio_sha }}"
+            # Unconditionally assign ext — empty string IS a valid value (final release)
+            # Do NOT use || here: "" || "-rc1" evaluates to "-rc1" in GHA expressions
+            EXT="${{ inputs.openstudio_version_ext }}"
+          fi
+
+          echo "openstudio_version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_sha=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_version_ext=${EXT}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: OpenStudio ${VERSION}${EXT} (${SHA})"
+
+  docker:
+    needs: setup
+    runs-on: ubuntu-24.04
+    env:
+      OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT: ${{ needs.setup.outputs.openstudio_version_ext }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,6 +91,7 @@ jobs:
           python-version: '3.12.x'
 
       - name: test and build
+        if: ${{ github.event.inputs.apptainer_only != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -56,8 +116,12 @@ jobs:
 
   apptainer:
     runs-on: ubuntu-24.04
-    needs: docker
-    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
+    needs: [setup, docker]
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
+    env:
+      OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT: ${{ needs.setup.outputs.openstudio_version_ext }}
     permissions:
       contents: read
       id-token: write
