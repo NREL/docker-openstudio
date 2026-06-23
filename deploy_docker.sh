@@ -32,28 +32,36 @@ fi
 
 # GITHUB_BASE_REF is only set on Pull Request events. Do not build those
 if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
-    echo "Tagging image as $IMAGETAG and pushing to ${DOCKER_REPO}"
+    echo "Building and pushing multi-arch image as $IMAGETAG to ${DOCKER_REPO}"
 
     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-    # Tag versioned image
-    docker tag openstudio:latest ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
+
+    # Build tags list
+    TAGS="--tag ${DOCKER_REPO}:${IMAGETAG}"
 
     # Only update and push 'latest' if this is a stable release (no extension)
     if [ -z "${OPENSTUDIO_VERSION_EXT}" ]; then
-        echo "Stable release detected. Updating and pushing '${DOCKER_REPO}:latest'"
-        docker tag openstudio:latest ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
-        docker push ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
+        echo "Stable release detected. Will also push '${DOCKER_REPO}:latest'"
+        TAGS="${TAGS} --tag ${DOCKER_REPO}:latest"
     else
-        echo "Pre-release detected (extension: '${OPENSTUDIO_VERSION_EXT}'). Skipping 'latest' tag update."
+        echo "Pre-release detected (extension: '${OPENSTUDIO_VERSION_EXT}'). Skipping 'latest' tag."
     fi
 
-    # Push versioned tag
-    docker push ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
-    # If on develop branch, also push the develop tag pointing to this image
+    # If on develop branch, also add the develop tag
     if [ "${IMAGETAG}" == "develop" ] || [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
-        docker tag openstudio:latest ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
-        docker push ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
+        TAGS="${TAGS} --tag ${DOCKER_REPO}:develop"
     fi
+
+    # Build and push multi-arch image in one step (required for multi-platform manifests)
+    docker buildx build \
+        --platform=linux/amd64,linux/arm64 \
+        --build-arg OPENSTUDIO_VERSION=${OPENSTUDIO_VERSION} \
+        --build-arg OPENSTUDIO_SHA=${OPENSTUDIO_SHA} \
+        --build-arg OPENSTUDIO_VERSION_EXT=${OPENSTUDIO_VERSION_EXT} \
+        ${TAGS} \
+        --push \
+        .
+    exit_status=$?
 
     exit $exit_status
 else

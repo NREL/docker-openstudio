@@ -41,7 +41,7 @@ env:
   OPENSTUDIO_VERSION: 3.11.0
   OPENSTUDIO_SHA: dee62bf9dd
   OPENSTUDIO_VERSION_EXT: "-rc1"
-  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-rc1%2Bdee62bf9dd-Ubuntu-24.04-x86_64.deb"
+  # Note: OPENSTUDIO_DOWNLOAD_URL is now constructed dynamically in the Dockerfile
 
 permissions:
   contents: read
@@ -89,6 +89,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.x'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: test and build
         if: ${{ github.event.inputs.apptainer_only != 'true' }}
