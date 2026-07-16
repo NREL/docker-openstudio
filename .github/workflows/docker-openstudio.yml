@@ -53,6 +53,7 @@ jobs:
       openstudio_version:     ${{ steps.resolve.outputs.openstudio_version }}
       openstudio_sha:         ${{ steps.resolve.outputs.openstudio_sha }}
       openstudio_version_ext: ${{ steps.resolve.outputs.openstudio_version_ext }}
+      openstudio_download_url: ${{ steps.resolve.outputs.openstudio_download_url }}
     steps:
       - name: Resolve version
         id: resolve
@@ -72,10 +73,20 @@ jobs:
             EXT="${{ inputs.openstudio_version_ext }}"
           fi
 
+          if [ -n "${EXT}" ]; then
+            ESC_VERSION=$(echo "${VERSION}${EXT}" | sed 's/+/%2B/g')
+            DOWNLOAD_URL="https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${SHA}-Ubuntu-24.04-x86_64.deb"
+          else
+            SHA10="${SHA:0:10}"
+            DOWNLOAD_URL="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${VERSION}%2B${SHA10}-Ubuntu-24.04-x86_64.deb"
+          fi
+
           echo "openstudio_version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "openstudio_sha=${SHA}" >> "$GITHUB_OUTPUT"
           echo "openstudio_version_ext=${EXT}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
           echo "Resolved: OpenStudio ${VERSION}${EXT} (${SHA})"
+          echo "Resolved download URL: ${DOWNLOAD_URL}"
 
   docker:
     needs: setup
@@ -84,6 +95,7 @@ jobs:
       OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
       OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
       OPENSTUDIO_VERSION_EXT: ${{ needs.setup.outputs.openstudio_version_ext }}
+      OPENSTUDIO_DOWNLOAD_URL: ${{ needs.setup.outputs.openstudio_download_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -98,7 +110,8 @@ jobs:
           docker build -t openstudio:latest \
             --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
             --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA \
-            --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT .
+            --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT \
+            --build-arg OPENSTUDIO_DOWNLOAD_URL=$OPENSTUDIO_DOWNLOAD_URL .
           docker run openstudio:latest openstudio openstudio_version
           docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
           docker run -v "$(pwd)":/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
