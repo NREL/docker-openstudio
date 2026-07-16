@@ -1,6 +1,6 @@
 # OpenStudio
 
-[![openstudio-docker](https://github.com/NREL/docker-openstudio/actions/workflows/docker-openstudio.yml/badge.svg)](https://github.com/NREL/docker-openstudio/actions/workflows/docker-openstudio.yml)
+[![openstudio-docker](https://github.com/NatLabRockies/docker-openstudio/actions/workflows/docker-openstudio.yml/badge.svg)](https://github.com/NatLabRockies/docker-openstudio/actions/workflows/docker-openstudio.yml)
 
 This repo provides a container for OpenStudio as well as several dependencies, including Ruby 2.x, Bundler, 
 build-essentials and various development libraries for gem support.
@@ -16,7 +16,7 @@ Below is a table of the various docker tags and their meanings as seen on [this 
 |---------|-----------------------------------------------------------------------------------------|
 | x.y.z   | Build of official OpenStudio release (recommended use)                                  |
 | latest  | Latest official release of OpenStudio (e.g. 2.5.1)                                      |
-| develop | Release of [develop branch](https://github.com/NREL/docker-openstudio/tree/develop)     |
+| develop | Release of [develop branch](https://github.com/NatLabRockies/docker-openstudio/tree/develop)     |
 
 ## Building OpenStudio Container
 
@@ -84,7 +84,7 @@ If gem dependencies are required as part of the CLI outside of those
 
 # Issues
 
-Please submit issues on the project's [Github](https://github.com/nrel/docker-openstudio) page. 
+Please submit issues on the project's [Github](https://github.com/NatLabRockies/docker-openstudio) page. 
 
 ## Building and publishing specific OpenStudio versions
 
