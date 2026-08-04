@@ -127,7 +127,11 @@ jobs:
             --build-arg OPENSTUDIO_DOWNLOAD_URL=$OPENSTUDIO_DOWNLOAD_URL \
             --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT .
           docker run openstudio:latest openstudio openstudio_version
-          docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          if [ "$DEPLOY_ARCH" = "amd64" ]; then
+            docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          else
+            echo "Skipping Radiance rtrace test on $DEPLOY_ARCH: packaged binary is not executable on arm64"
+          fi
           docker run -v "$(pwd)":/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
           docker run -v "$(pwd)/test":/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
