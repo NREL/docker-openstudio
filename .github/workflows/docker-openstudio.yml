@@ -11,11 +11,11 @@ on:
       openstudio_version:
         description: 'OpenStudio version (e.g. 3.10.0)'
         required: true
-        default: '3.11.0'
+        default: '3.10.0'
       openstudio_sha:
         description: 'OpenStudio git SHA'
         required: true
-        default: 'dee62bf9dd'
+        default: '86d7e215a1'
       openstudio_version_ext:
         description: 'Version extension (e.g. -rc1). Leave blank for a final release. Default: -rc1'
         required: false
@@ -38,10 +38,9 @@ concurrency:
 
 env:
   USE_TESTING_TIMEOUTS: "true"
-  OPENSTUDIO_VERSION: 3.11.0
-  OPENSTUDIO_SHA: dee62bf9dd
-  OPENSTUDIO_VERSION_EXT: "-rc1"
-  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-rc1%2Bdee62bf9dd-Ubuntu-24.04-x86_64.deb"
+  OPENSTUDIO_VERSION: 3.10.0
+  OPENSTUDIO_SHA: 86d7e215a1
+  OPENSTUDIO_VERSION_EXT: ""
 
 permissions:
   contents: read
