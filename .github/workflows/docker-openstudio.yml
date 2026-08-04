@@ -50,9 +50,11 @@ jobs:
   setup:
     runs-on: ubuntu-24.04
     outputs:
-      openstudio_version:     ${{ steps.resolve.outputs.openstudio_version }}
-      openstudio_sha:         ${{ steps.resolve.outputs.openstudio_sha }}
-      openstudio_version_ext: ${{ steps.resolve.outputs.openstudio_version_ext }}
+      openstudio_version:          ${{ steps.resolve.outputs.openstudio_version }}
+      openstudio_sha:              ${{ steps.resolve.outputs.openstudio_sha }}
+      openstudio_version_ext:      ${{ steps.resolve.outputs.openstudio_version_ext }}
+      openstudio_download_url:     ${{ steps.resolve.outputs.openstudio_download_url }}
+      openstudio_download_url_arm64: ${{ steps.resolve.outputs.openstudio_download_url_arm64 }}
     steps:
       - name: Resolve version
         id: resolve
@@ -72,18 +74,43 @@ jobs:
             EXT="${{ inputs.openstudio_version_ext }}"
           fi
 
+          SHA10="${SHA:0:10}"
+          if [ -n "${EXT}" ]; then
+            ESC_VERSION=$(echo "${VERSION}${EXT}" | sed 's/+/%2B/g')
+            DOWNLOAD_URL="https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${SHA}-Ubuntu-24.04-x86_64.deb"
+            # S3 does not publish arm64 builds; fall back to the GitHub release asset naming
+            DOWNLOAD_URL_ARM64="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${ESC_VERSION}%2B${SHA10}-Ubuntu-24.04-arm64.deb"
+          else
+            DOWNLOAD_URL="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${VERSION}%2B${SHA10}-Ubuntu-24.04-x86_64.deb"
+            DOWNLOAD_URL_ARM64="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${VERSION}%2B${SHA10}-Ubuntu-24.04-arm64.deb"
+          fi
+
           echo "openstudio_version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "openstudio_sha=${SHA}" >> "$GITHUB_OUTPUT"
           echo "openstudio_version_ext=${EXT}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_download_url_arm64=${DOWNLOAD_URL_ARM64}" >> "$GITHUB_OUTPUT"
           echo "Resolved: OpenStudio ${VERSION}${EXT} (${SHA})"
+          echo "Resolved amd64 URL: ${DOWNLOAD_URL}"
+          echo "Resolved arm64 URL: ${DOWNLOAD_URL_ARM64}"
 
   docker:
     needs: setup
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            os: ubuntu-24.04
+          - arch: arm64
+            os: ubuntu-24.04-arm
     env:
-      OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
-      OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
-      OPENSTUDIO_VERSION_EXT: ${{ needs.setup.outputs.openstudio_version_ext }}
+      DEPLOY_ARCH:              ${{ matrix.arch }}
+      OPENSTUDIO_VERSION:       ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:           ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT:   ${{ needs.setup.outputs.openstudio_version_ext }}
+      OPENSTUDIO_DOWNLOAD_URL:  ${{ matrix.arch == 'arm64' && needs.setup.outputs.openstudio_download_url_arm64 || needs.setup.outputs.openstudio_download_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -113,10 +140,32 @@ jobs:
         env:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_MANUAL_IMAGE_TAG: ${{ inputs.docker_manual_image_tag }}
+
+  docker-manifest:
+    needs: [setup, docker]
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') && !(github.event_name == 'workflow_dispatch' && inputs.apptainer_only) }}
+    env:
+      OPENSTUDIO_VERSION:       ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:           ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT:   ${{ needs.setup.outputs.openstudio_version_ext }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: merge multi-arch manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./merge_manifests.sh
+        env:
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_MANUAL_IMAGE_TAG: ${{ inputs.docker_manual_image_tag }}
 
   apptainer:
     runs-on: ubuntu-24.04
-    needs: [setup, docker]
+    needs: [setup, docker, docker-manifest]
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
     env:
       OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
