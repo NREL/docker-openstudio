@@ -23,7 +23,7 @@ on:
       apptainer_only:
         description: 'Skip docker build/test and only build the .sif from an existing Docker Hub image'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 # example of how to restrict to one branch and push event
@@ -155,7 +155,7 @@ jobs:
           docker run -v "$(pwd)/test":/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
       - name: deploy docker
-        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') }}
+        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -167,7 +167,7 @@ jobs:
   docker-manifest:
     needs: [setup, docker]
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') && !(github.event_name == 'workflow_dispatch' && inputs.apptainer_only) }}
+    if: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined') && !(github.event_name == 'workflow_dispatch' && inputs.apptainer_only) }}
     env:
       OPENSTUDIO_VERSION:       ${{ needs.setup.outputs.openstudio_version }}
       OPENSTUDIO_SHA:           ${{ needs.setup.outputs.openstudio_sha }}
@@ -190,7 +190,7 @@ jobs:
   apptainer:
     runs-on: ubuntu-24.04
     needs: [setup, docker, docker-manifest]
-    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined' }}
     env:
       OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
       OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
@@ -218,7 +218,7 @@ jobs:
           set -euo pipefail
           apptainer build \
             OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
-            docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+            docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT$OPENSTUDIO_SHA
 
       - uses: actions/upload-artifact@v4
         with:
