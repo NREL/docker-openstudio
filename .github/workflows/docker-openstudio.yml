@@ -9,21 +9,21 @@ on:
   workflow_dispatch:
     inputs:
       openstudio_version:
-        description: 'OpenStudio version (e.g. 3.10.0)'
+        description: 'OpenStudio version (e.g. 3.11.0)'
         required: true
         default: '3.11.0'
       openstudio_sha:
-        description: 'OpenStudio git SHA'
+        description: 'OpenStudio git SHA (first 10 chars are used in GitHub release asset names)'
         required: true
-        default: 'dee62bf9dd'
+        default: '241b8abb4d'
       openstudio_version_ext:
-        description: 'Version extension (e.g. -rc1). Leave blank for a final release. Default: -rc1'
+        description: 'Version extension (e.g. -rc1). Leave blank for a final release.'
         required: false
         default: ''
       apptainer_only:
         description: 'Skip docker build/test and only build the .sif from an existing Docker Hub image'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 # example of how to restrict to one branch and push event
@@ -39,9 +39,8 @@ concurrency:
 env:
   USE_TESTING_TIMEOUTS: "true"
   OPENSTUDIO_VERSION: 3.11.0
-  OPENSTUDIO_SHA: dee62bf9dd
-  OPENSTUDIO_VERSION_EXT: "-rc1"
-  OPENSTUDIO_DOWNLOAD_URL: "https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-3.11.0-rc1%2Bdee62bf9dd-Ubuntu-24.04-x86_64.deb"
+  OPENSTUDIO_SHA: 241b8abb4d
+  OPENSTUDIO_VERSION_EXT: ""
 
 permissions:
   contents: read
@@ -50,9 +49,11 @@ jobs:
   setup:
     runs-on: ubuntu-24.04
     outputs:
-      openstudio_version:     ${{ steps.resolve.outputs.openstudio_version }}
-      openstudio_sha:         ${{ steps.resolve.outputs.openstudio_sha }}
-      openstudio_version_ext: ${{ steps.resolve.outputs.openstudio_version_ext }}
+      openstudio_version:          ${{ steps.resolve.outputs.openstudio_version }}
+      openstudio_sha:              ${{ steps.resolve.outputs.openstudio_sha }}
+      openstudio_version_ext:      ${{ steps.resolve.outputs.openstudio_version_ext }}
+      openstudio_download_url:     ${{ steps.resolve.outputs.openstudio_download_url }}
+      openstudio_download_url_arm64: ${{ steps.resolve.outputs.openstudio_download_url_arm64 }}
     steps:
       - name: Resolve version
         id: resolve
@@ -72,18 +73,48 @@ jobs:
             EXT="${{ inputs.openstudio_version_ext }}"
           fi
 
+          SHA10="${SHA:0:10}"
+          if [ -n "${EXT}" ]; then
+            ESC_VERSION=$(echo "${VERSION}${EXT}" | sed 's/+/%2B/g')
+            # Pre-releases: only x86_64 is published to the CI S3 bucket.
+            # arm64 assets are only published for stable GitHub releases, so the
+            # arm64 URL below will 404 and the docker job's pre-flight check
+            # fails fast with a clear message.
+            DOWNLOAD_URL="https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/develop/OpenStudio-${ESC_VERSION}%2B${SHA}-Ubuntu-24.04-x86_64.deb"
+            DOWNLOAD_URL_ARM64="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${ESC_VERSION}%2B${SHA10}-Ubuntu-24.04-arm64.deb"
+          else
+            # Stable releases: GitHub release assets are the canonical source and
+            # publish both amd64 and arm64 (Ubuntu 24.04).
+            DOWNLOAD_URL="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${VERSION}%2B${SHA10}-Ubuntu-24.04-x86_64.deb"
+            DOWNLOAD_URL_ARM64="https://github.com/NatLabRockies/OpenStudio/releases/download/v${VERSION}/OpenStudio-${VERSION}%2B${SHA10}-Ubuntu-24.04-arm64.deb"
+          fi
+
           echo "openstudio_version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "openstudio_sha=${SHA}" >> "$GITHUB_OUTPUT"
           echo "openstudio_version_ext=${EXT}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+          echo "openstudio_download_url_arm64=${DOWNLOAD_URL_ARM64}" >> "$GITHUB_OUTPUT"
           echo "Resolved: OpenStudio ${VERSION}${EXT} (${SHA})"
+          echo "Resolved amd64 URL: ${DOWNLOAD_URL}"
+          echo "Resolved arm64 URL: ${DOWNLOAD_URL_ARM64}"
 
   docker:
     needs: setup
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            os: ubuntu-24.04
+          - arch: arm64
+            os: ubuntu-24.04-arm
     env:
-      OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
-      OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
-      OPENSTUDIO_VERSION_EXT: ${{ needs.setup.outputs.openstudio_version_ext }}
+      DEPLOY_ARCH:              ${{ matrix.arch }}
+      OPENSTUDIO_VERSION:       ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:           ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT:   ${{ needs.setup.outputs.openstudio_version_ext }}
+      OPENSTUDIO_DOWNLOAD_URL:  ${{ matrix.arch == 'arm64' && needs.setup.outputs.openstudio_download_url_arm64 || needs.setup.outputs.openstudio_download_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -95,17 +126,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Fail fast with a clear message if the OpenStudio package URL is missing
+          # or 404s. Pre-releases only publish x86_64 artifacts, so an arm64 build
+          # of a pre-release cannot succeed — report that instead of a cryptic curl/gdebi error.
+          if [ -z "${OPENSTUDIO_DOWNLOAD_URL}" ]; then
+            echo "ERROR: No OpenStudio package URL resolved for arch=${DEPLOY_ARCH} version=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}" >&2
+            echo "Multi-arch builds require assets for BOTH amd64 and arm64. Stable GitHub releases provide both." >&2
+            exit 1
+          fi
+          if ! curl -sfI --max-time 20 "${OPENSTUDIO_DOWNLOAD_URL}" > /dev/null; then
+            echo "ERROR: OpenStudio package not found for arch=${DEPLOY_ARCH}:" >&2
+            echo "  ${OPENSTUDIO_DOWNLOAD_URL}" >&2
+            echo "For pre-releases only x86_64 artifacts are published. Use a stable release for multi-arch builds." >&2
+            exit 1
+          fi
           docker build -t openstudio:latest \
             --build-arg OPENSTUDIO_VERSION=$OPENSTUDIO_VERSION \
             --build-arg OPENSTUDIO_SHA=$OPENSTUDIO_SHA \
+            --build-arg OPENSTUDIO_DOWNLOAD_URL=$OPENSTUDIO_DOWNLOAD_URL \
             --build-arg OPENSTUDIO_VERSION_EXT=$OPENSTUDIO_VERSION_EXT .
           docker run openstudio:latest openstudio openstudio_version
-          docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          if [ "$DEPLOY_ARCH" = "amd64" ]; then
+            docker run openstudio:latest /usr/local/openstudio-$OPENSTUDIO_VERSION/Radiance/bin/rtrace -version
+          else
+            echo "Skipping Radiance rtrace test on $DEPLOY_ARCH: packaged binary is not executable on arm64"
+          fi
           docker run -v "$(pwd)":/var/simdata/openstudio openstudio:latest ruby /var/simdata/openstudio/test/test_run.rb
           docker run -v "$(pwd)/test":/var/simdata/openstudio openstudio:latest ./test_gemfile.sh
 
       - name: deploy docker
-        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name') }}
+        if: ${{ success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -114,10 +164,33 @@ jobs:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
 
+  docker-manifest:
+    needs: [setup, docker]
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined') && !(github.event_name == 'workflow_dispatch' && inputs.apptainer_only) }}
+    env:
+      OPENSTUDIO_VERSION:       ${{ needs.setup.outputs.openstudio_version }}
+      OPENSTUDIO_SHA:           ${{ needs.setup.outputs.openstudio_sha }}
+      OPENSTUDIO_VERSION_EXT:   ${{ needs.setup.outputs.openstudio_version_ext }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: merge multi-arch manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./merge_manifests.sh
+        env:
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+
   apptainer:
     runs-on: ubuntu-24.04
-    needs: [setup, docker]
-    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/custom_branch_name' }}
+    needs: [setup, docker, docker-manifest]
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/multi-arch-combined' }}
     env:
       OPENSTUDIO_VERSION:     ${{ needs.setup.outputs.openstudio_version }}
       OPENSTUDIO_SHA:         ${{ needs.setup.outputs.openstudio_sha }}
@@ -145,7 +218,7 @@ jobs:
           set -euo pipefail
           apptainer build \
             OpenStudio-$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT.$OPENSTUDIO_SHA-Apptainer.sif \
-            docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT
+            docker://nrel/openstudio:$OPENSTUDIO_VERSION$OPENSTUDIO_VERSION_EXT$OPENSTUDIO_SHA
 
       - uses: actions/upload-artifact@v4
         with:

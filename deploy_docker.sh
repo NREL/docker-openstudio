@@ -1,61 +1,43 @@
 #!/usr/bin/env bash
-IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-echo "default image tag would be $IMAGETAG"
-IMAGETAG=skip
-DOCKER_REPO=${DOCKER_REPO:-nrel/openstudio}
+# Builds the locally-built image, tags it with an arch suffix, and pushes it.
+# The canonical (multi-arch) tags are created later by merge_manifests.sh.
+#
+# Required env: DOCKER_USER, DOCKER_PASS, OPENSTUDIO_VERSION, OPENSTUDIO_VERSION_EXT
+# Optional env: DEPLOY_ARCH (amd64|arm64, default amd64), DOCKER_MANUAL_IMAGE_TAG
+set -euo pipefail
 
-# Check branch name for correct tagging
-if [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
-    IMAGETAG="develop"
-elif [ "${GITHUB_REF}" == "refs/heads/2.9.X-LTS" ]; then
-    IMAGETAG="2.9.X-LTS"
-elif [ "${GITHUB_REF}" == "refs/heads/master" ]; then
-    # Retrieve the version number from rails
-    IMAGETAG=${OPENSTUDIO_VERSION}${OPENSTUDIO_VERSION_EXT}
-# Uncomment and set branch name for custom builds.
-elif [ "${GITHUB_REF}" == "refs/heads/custom_branch_name" ]; then
-    IMAGETAG="experimental"
-elif [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
-    IMAGETAG="develop"
-fi
-
-# Check if this is a manual installer GH action
-if [ ! -z "${DOCKER_MANUAL_IMAGE_TAG}" ]; then
-  if [ "${DOCKER_MANUAL_IMAGE_TAG}" == "develop" ]; then
-    IMAGETAG="develop"
-  elif [[ "${DOCKER_MANUAL_IMAGE_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
-    IMAGETAG="${DOCKER_MANUAL_IMAGE_TAG}"
-  else
-    IMAGETAG="dev-${DOCKER_MANUAL_IMAGE_TAG}"
-  fi
-fi
+source "$(dirname "$0")/get_image_tags.sh"
+DEPLOY_ARCH=${DEPLOY_ARCH:-amd64}
 
 # GITHUB_BASE_REF is only set on Pull Request events. Do not build those
-if [ "${IMAGETAG}" != "skip" ] && [[ -z "${GITHUB_BASE_REF}" ]]; then
-    echo "Tagging image as $IMAGETAG and pushing to ${DOCKER_REPO}"
-
-    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-    # Tag versioned image
-    docker tag openstudio:latest ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
-
-    # Only update and push 'latest' if this is a stable release (no extension)
-    if [ -z "${OPENSTUDIO_VERSION_EXT}" ]; then
-        echo "Stable release detected. Updating and pushing '${DOCKER_REPO}:latest'"
-        docker tag openstudio:latest ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
-        docker push ${DOCKER_REPO}:latest; (( exit_status = exit_status || $? ))
-    else
-        echo "Pre-release detected (extension: '${OPENSTUDIO_VERSION_EXT}'). Skipping 'latest' tag update."
-    fi
-
-    # Push versioned tag
-    docker push ${DOCKER_REPO}:$IMAGETAG; (( exit_status = exit_status || $? ))
-    # If on develop branch, also push the develop tag pointing to this image
-    if [ "${IMAGETAG}" == "develop" ] || [ "${GITHUB_REF}" == "refs/heads/develop" ]; then
-        docker tag openstudio:latest ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
-        docker push ${DOCKER_REPO}:develop; (( exit_status = exit_status || $? ))
-    fi
-
-    exit $exit_status
-else
-    echo "Not on a deployable branch, this is a pull request or has been explicity skipped"
+if [ "${IMAGETAG}" == "skip" ] || [ -n "${GITHUB_BASE_REF:-}" ]; then
+    echo "Not on a deployable branch, this is a pull request or has been explicitly skipped"
+    exit 0
 fi
+
+echo "Tagging image as ${IMAGETAG}-${DEPLOY_ARCH} and pushing to ${DOCKER_REPO}"
+
+echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+# Push the arch-suffixed image. The canonical tag is assembled later by the
+# manifest job so that parallel amd64/arm64 pushes never clobber each other.
+ARCH_TAG="${DOCKER_REPO}:${IMAGETAG}-${DEPLOY_ARCH}"
+docker tag openstudio:latest "${ARCH_TAG}"
+docker push "${ARCH_TAG}"
+
+# If on develop branch, also push the develop tag pointing to this image
+if [ "${IMAGETAG}" == "develop" ]; then
+    docker tag openstudio:latest "${DOCKER_REPO}:develop-${DEPLOY_ARCH}"
+    docker push "${DOCKER_REPO}:develop-${DEPLOY_ARCH}"
+fi
+
+# Only update and push 'latest' if this is a stable release (no extension)
+if [ -z "${OPENSTUDIO_VERSION_EXT}" ]; then
+    echo "Stable release detected. Updating and pushing '${DOCKER_REPO}:latest-${DEPLOY_ARCH}'"
+    docker tag openstudio:latest "${DOCKER_REPO}:latest-${DEPLOY_ARCH}"
+    docker push "${DOCKER_REPO}:latest-${DEPLOY_ARCH}"
+else
+    echo "Pre-release detected (extension: '${OPENSTUDIO_VERSION_EXT}'). Skipping 'latest' tag update."
+fi
+
+echo "Done pushing ${DEPLOY_ARCH} artifacts for ${IMAGETAG}"
